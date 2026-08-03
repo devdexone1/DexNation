@@ -1,0 +1,109 @@
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px),
+    var(--color-bg);
+  background-size: 48px 48px, 48px 48px, auto;
+  background-position: center;
+}
+
+.login::before {
+  content: '';
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-items: stretch;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.title {
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.title span {
+  color: var(--color-accent);
+}
+
+.subtitle {
+  color: var(--color-ink-soft);
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.googleBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 13px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.googleBtn:hover:not(:disabled) {
+  border-color: var(--color-ink);
+  background: var(--color-surface-sunken);
+}
+
+.googleBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--color-negative);
+  background: var(--color-negative-soft);
+  border: 1px solid rgba(190, 58, 52, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.footnote {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink-faint);
+  text-align: center;
+}

@@ -1,0 +1,163 @@
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 8px;
+  margin-bottom: 4px;
+}
+
+.brandMark {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.brandMark span {
+  color: var(--color-accent);
+}
+
+.nationName {
+  padding: 0 8px;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-ink-soft);
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.link:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+}
+
+.linkActive {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.linkIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.linkSoon {
+  margin-left: auto;
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  color: var(--color-ink-faint);
+}
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.signOut {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  color: var(--color-ink-soft);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+.signOut:hover {
+  background: var(--color-surface-sunken);
+  color: var(--color-negative);
+}
+
+/* ---------- Tick clock ---------- */
+
+.tickClock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+}
+
+.tickDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-positive);
+  box-shadow: 0 0 0 3px var(--color-positive-soft);
+  flex-shrink: 0;
+}
+
+.tickText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tickLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-faint);
+}
+
+.tickValue {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+}

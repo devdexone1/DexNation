@@ -1,0 +1,170 @@
+.header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.title {
+  font-size: 24px;
+  margin-top: 4px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  margin-top: 6px;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.scoreGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.scoreCard {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scoreLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-faint);
+}
+
+.scoreValue {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.gradeBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel {
+  padding: 20px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--color-negative);
+  margin-bottom: 10px;
+}
+
+.loanRow {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.loanRow:last-child {
+  border-bottom: none;
+}
+
+.loanInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loanPrincipal {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.loanMeta {
+  font-size: 12px;
+  color: var(--color-ink-soft);
+}
+
+.loanActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.payInput {
+  width: 110px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  font-size: 12.5px;
+}
+
+.smallBtn {
+  padding: 8px 14px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.emptyState {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.gradeTableWrap {
+  overflow-x: auto;
+}
+
+.gradeTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.gradeTable th,
+.gradeTable td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gradeTable th {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-faint);
+}
+
+.gradeRowActive {
+  background: var(--color-accent-soft);
+}

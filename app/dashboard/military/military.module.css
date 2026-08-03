@@ -1,0 +1,219 @@
+.header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.title {
+  font-size: 24px;
+  margin-top: 4px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  margin-top: 6px;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.walletRow {
+  display: flex;
+  gap: 24px;
+  margin-top: 14px;
+}
+
+.walletItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.walletLabel {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-faint);
+}
+
+.walletValue {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.ownedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.ownedCard {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ownedName {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.ownedAmount {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.branchBlock {
+  margin-bottom: 24px;
+}
+
+.branchLabel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-soft);
+  margin-bottom: 10px;
+}
+
+.catalogGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.catalogCard {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.catalogCardLocked {
+  opacity: 0.6;
+}
+
+.catalogName {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.catalogMeta {
+  font-size: 11.5px;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+}
+
+.catalogStats {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.catalogCostList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.catalogCostItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.catalogCostLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.catalogError {
+  font-size: 11.5px;
+  color: var(--color-negative);
+}
+
+.warsPanel {
+  padding: 18px 20px;
+}
+
+.warRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+
+.warRow:last-child {
+  border-bottom: none;
+}
+
+.warParties {
+  font-weight: 500;
+}
+
+.emptyState {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.declarePanel {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.searchRow {
+  display: flex;
+  gap: 10px;
+}
+
+.searchInput {
+  flex: 1;
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resultRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.declareError {
+  font-size: 12px;
+  color: var(--color-negative);
+}
+
+.declareSuccess {
+  font-size: 12px;
+  color: #0a7a5c;
+}
