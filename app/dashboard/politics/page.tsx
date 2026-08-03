@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Nation, Government, Alliance, AllianceMember } from '@/types/database'
+import type { Nation, Government, Alliance, AllianceMember, GlobalResolution } from '@/types/database'
 import IdeologyPanel from './IdeologyPanel'
 import AllianceSection from './AllianceSection'
+import UnResolutions from './UnResolutions'
 import styles from './politics.module.css'
 
 export default async function PoliticsPage() {
@@ -17,6 +18,9 @@ export default async function PoliticsPage() {
   let members: AllianceMember[] = []
   let memberNames: Record<string, string> = {}
   let browsableAlliances: (Alliance & { memberCount: number })[] = []
+  let resolutions: GlobalResolution[] = []
+  let votedResolutionIds = new Set<string>()
+  let nationOptions: { id: string; name: string }[] = []
 
   if (user) {
     const { data: nationData } = await supabase
@@ -94,6 +98,18 @@ export default async function PoliticsPage() {
             members={members}
             memberNames={memberNames}
             browsableAlliances={browsableAlliances}
+          />
+        ) : null}
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>United Nations</h2>
+        {nation ? (
+          <UnResolutions
+            nationId={nation.id}
+            resolutions={resolutions}
+            votedResolutionIds={votedResolutionIds}
+            nationOptions={nationOptions}
           />
         ) : null}
       </div>

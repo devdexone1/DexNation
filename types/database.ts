@@ -238,3 +238,23 @@ export interface CreditStatus {
   max_borrow_cap: number
   total_active_debt: number
 }
+
+export interface GlobalResolution {
+  id: string
+  resolution_type: 'EMBARGO' | 'INTEREST_RATE_CAP' | 'PEACE_ENFORCEMENT'
+  proposer_nation_id: string | null
+  target_nation_id: string | null
+  votes_for: number
+  votes_against: number
+  status: 'PROPOSED' | 'PASSED' | 'FAILED'
+  start_tick: number
+  end_tick: number
+}
+
+export interface ResolutionVote {
+  id: string
+  resolution_id: string
+  nation_id: string
+  vote_choice: 'FOR' | 'AGAINST'
+  voting_power: number
+}
