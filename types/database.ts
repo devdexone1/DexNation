@@ -118,6 +118,8 @@ export interface NationMilitaryUnit {
   nation_id: string
   unit_type: string
   amount: number
+  injured_light: number
+  injured_severe: number
   morale_status: 'NORMAL' | 'MORALE_ZERO'
 }
 
@@ -142,6 +144,7 @@ export const BUILDING_CATEGORY_LABELS: Record<string, string> = {
   HIGH_TECH: 'High-Tech Industries',
   ENERGY: 'Energy Generation',
   LOGISTICS: 'Logistics',
+  MEDICAL: 'Medical & Field Hospitals',
 }
 
 export interface P2PMarketOrder {
@@ -257,4 +260,45 @@ export interface ResolutionVote {
   nation_id: string
   vote_choice: 'FOR' | 'AGAINST'
   voting_power: number
+}
+
+export interface TroopMovement {
+  id: string
+  war_id: string
+  attacker_nation_id: string
+  defender_nation_id: string
+  unit_type: string
+  amount_sent: number
+  route_type: 'LAND' | 'SEA'
+  direction: 'OUTBOUND' | 'RETURNING'
+  status: 'EN_ROUTE' | 'ARRIVED' | 'PROCESSING'
+  departure_at: string
+  arrival_at: string
+  survivors_active: number | null
+  survivors_light_injured: number | null
+  survivors_severe_injured: number | null
+}
+
+export interface BattleLog {
+  id: string
+  war_id: string
+  movement_id: string | null
+  attacker_nation_id: string
+  defender_nation_id: string
+  attacker_power: number
+  defender_power: number
+  attacker_start: number
+  defender_start: number
+  attacker_end: number
+  defender_end: number
+  winner: 'ATTACKER' | 'DEFENDER'
+  replay_log: { t: number; attacker: number; defender: number }[]
+  created_at: string
+}
+
+export interface HospitalSpec {
+  building_type_id: string
+  capacity_per_tick: number
+  light_treatment_cost: number
+  severe_treatment_cost: number
 }

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber } from '@/lib/format'
 import { MILITARY_BRANCH_LABELS } from '@/types/database'
@@ -25,6 +26,8 @@ export default async function MilitaryPage() {
   let ownedUnits: NationMilitaryUnit[] = []
   let completedTechs: NationTechnology[] = []
   let wars: (ActiveWar & { attackerName?: string; defenderName?: string })[] = []
+  let hospitalCapacity = 0
+  let hospitalBuildingCount = 0
 
   if (user) {
     const { data: nationData } = await supabase
@@ -35,7 +38,7 @@ export default async function MilitaryPage() {
     nation = nationData
 
     if (nation) {
-      const [stocksRes, unitTypesRes, ownedRes, techsRes, warsRes] = await Promise.all([
+      const [stocksRes, unitTypesRes, ownedRes, techsRes, warsRes, activeBuildingsRes] = await Promise.all([
         supabase.from('nation_stocks').select('*').eq('nation_id', nation.id),
         supabase.from('military_unit_types').select('*').order('cost_cash', { ascending: true }),
         supabase.from('nation_military').select('*').eq('nation_id', nation.id),
@@ -49,6 +52,11 @@ export default async function MilitaryPage() {
           .select('*')
           .or(`attacker_id.eq.${nation.id},defender_id.eq.${nation.id}`)
           .order('declared_at_tick', { ascending: false }),
+        supabase
+          .from('nation_buildings')
+          .select('building_type_id')
+          .eq('nation_id', nation.id)
+          .eq('status', 'ACTIVE'),
       ])
       stocks = stocksRes.data ?? []
       unitTypes = unitTypesRes.data ?? []
@@ -56,7 +64,30 @@ export default async function MilitaryPage() {
       completedTechs = techsRes.data ?? []
       wars = warsRes.data ?? []
 
-      // Resolve nation names for the war list in a second lightweight query.
+      // Step 1: which of this nation's active buildings are hospitals?
+      const activeBuildingTypeIds = (activeBuildingsRes.data ?? []).map((b) => b.building_type_id)
+
+      if (activeBuildingTypeIds.length > 0) {
+        const { data: hospitalSpecsData } = await supabase
+          .from('hospital_specs')
+          .select('building_type_id, capacity_per_tick')
+          .in('building_type_id', activeBuildingTypeIds)
+
+        // Step 2: sum capacity across every active building that matches a hospital spec
+        // (a nation can own multiple of the same hospital building, each still counts).
+        const hospitalCapacityById = new Map(
+          (hospitalSpecsData ?? []).map((h) => [h.building_type_id, h.capacity_per_tick])
+        )
+
+        for (const buildingTypeId of activeBuildingTypeIds) {
+          const capacity = hospitalCapacityById.get(buildingTypeId)
+          if (capacity !== undefined) {
+            hospitalBuildingCount += 1
+            hospitalCapacity += capacity
+          }
+        }
+      }
+
       if (wars.length > 0) {
         const nationIds = Array.from(
           new Set(wars.flatMap((w) => [w.attacker_id, w.defender_id]))
@@ -82,6 +113,8 @@ export default async function MilitaryPage() {
   const unitTypeById = new Map(unitTypes.map((u) => [u.id, u]))
 
   const branches: Array<'LAND' | 'AIR' | 'NAVAL'> = ['LAND', 'AIR', 'NAVAL']
+  const totalInjuredLight = ownedUnits.reduce((sum, u) => sum + u.injured_light, 0)
+  const totalInjuredSevere = ownedUnits.reduce((sum, u) => sum + u.injured_severe, 0)
 
   return (
     <div>
@@ -89,10 +122,9 @@ export default async function MilitaryPage() {
         <div className={styles.eyebrow}>Military</div>
         <h1 className={styles.title}>Armed Forces</h1>
         <p className={styles.subtitle}>
-          Recruit units and declare war. Daily upkeep deduction and the 3-phase combat
-          engine (Air → Naval → Ground, File 03 §4) run on the Daily Tick — that backend
-          job isn&apos;t live yet, so wars stay in &quot;ACTIVE&quot; status without
-          auto-resolving for now.
+          Recruit units and manage active wars. Combat now runs as a real-time 60-second
+          battle once troops arrive at their target — open a war below to dispatch an
+          attack.
         </p>
         <div className={styles.walletRow}>
           <div className={styles.walletItem}>
@@ -126,6 +158,34 @@ export default async function MilitaryPage() {
       </div>
 
       <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Hospital &amp; Recovery</h2>
+        <div className={`${styles.warsPanel} card`}>
+          <div className={styles.warRow}>
+            <span>Hospital buildings</span>
+            <span className="mono">{hospitalBuildingCount}</span>
+          </div>
+          <div className={styles.warRow}>
+            <span>Total healing capacity / tick</span>
+            <span className="mono">{formatNumber(hospitalCapacity)}</span>
+          </div>
+          <div className={styles.warRow}>
+            <span>Light injuries waiting</span>
+            <span className="mono">{formatNumber(totalInjuredLight)}</span>
+          </div>
+          <div className={styles.warRow}>
+            <span>Severe injuries waiting</span>
+            <span className="mono">{formatNumber(totalInjuredSevere)}</span>
+          </div>
+          {hospitalBuildingCount === 0 && (totalInjuredLight > 0 || totalInjuredSevere > 0) ? (
+            <div className={styles.catalogError} style={{ marginTop: 10 }}>
+              You have injured troops but no hospital built — they will never recover.
+              Build an Emergency Tent in Economy to start healing them.
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Recruit Units</h2>
         {branches.map((branch) => {
           const items = unitTypes.filter((u) => u.branch === branch)
@@ -155,12 +215,14 @@ export default async function MilitaryPage() {
             <div className={styles.emptyState}>No active wars.</div>
           ) : (
             wars.map((w) => (
-              <div className={styles.warRow} key={w.id}>
-                <span className={styles.warParties}>
-                  {w.attackerName} <span style={{ color: 'var(--color-ink-faint)' }}>vs</span> {w.defenderName}
-                </span>
-                <span className="badge badge--accent">{w.war_status}</span>
-              </div>
+              <Link href={`/dashboard/military/war/${w.id}`} key={w.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className={styles.warRow}>
+                  <span className={styles.warParties}>
+                    {w.attackerName} <span style={{ color: 'var(--color-ink-faint)' }}>vs</span> {w.defenderName}
+                  </span>
+                  <span className="badge badge--accent">{w.war_status} · Open →</span>
+                </div>
+              </Link>
             ))
           )}
         </div>

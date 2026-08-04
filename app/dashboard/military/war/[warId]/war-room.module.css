@@ -1,0 +1,177 @@
+.header {
+  margin-bottom: 24px;
+}
+
+.backLink {
+  font-size: 12.5px;
+  color: var(--color-ink-soft);
+  text-decoration: underline;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.title {
+  font-size: 24px;
+  margin-top: 4px;
+}
+
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 15px;
+  margin-bottom: 14px;
+}
+
+.panel {
+  padding: 20px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--color-negative);
+  margin-bottom: 10px;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--color-ink-faint);
+  margin-top: 4px;
+}
+
+.movementRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+
+.movementRow:last-child {
+  border-bottom: none;
+}
+
+.movementInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.movementMeta {
+  font-size: 11.5px;
+  color: var(--color-ink-soft);
+}
+
+.countdown {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.emptyState {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.battleCard {
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.battleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.battleParties {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.battleStats {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--color-ink-soft);
+  margin-bottom: 10px;
+}
+
+.replayWrap {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.replayBars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.replayRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.replayLabel {
+  width: 70px;
+  font-size: 11.5px;
+  color: var(--color-ink-soft);
+  flex-shrink: 0;
+}
+
+.replayBarTrack {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.replayBarFillAttacker {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.9s linear;
+}
+
+.replayBarFillDefender {
+  height: 100%;
+  background: var(--color-ink);
+  transition: width 0.9s linear;
+}
+
+.replayCount {
+  width: 60px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  flex-shrink: 0;
+}
+
+.replayClock {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-ink-faint);
+  margin-top: 10px;
+}
