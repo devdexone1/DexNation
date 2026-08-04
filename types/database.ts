@@ -311,3 +311,13 @@ export interface AllianceWarNotification {
   war_id: string
   created_at: string
 }
+
+export interface AllianceTreaty {
+  id: string
+  alliance_a_id: string
+  alliance_b_id: string
+  status: 'PROPOSED' | 'ACTIVE' | 'REJECTED' | 'CANCELLED'
+  proposed_by_alliance_id: string
+  created_at: string
+  responded_at: string | null
+}

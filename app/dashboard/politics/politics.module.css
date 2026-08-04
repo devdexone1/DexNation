@@ -273,3 +273,29 @@
   color: var(--color-ink-faint);
   margin-top: 2px;
 }
+
+.treatyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+
+.treatyRow:last-child {
+  border-bottom: none;
+}
+
+.treatyActions {
+  display: flex;
+  gap: 8px;
+}
+
+.proposeTreatyRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}

@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Nation, Government, Alliance, AllianceMember, GlobalResolution, AllianceWarNotification } from '@/types/database'
+import type { Nation, Government, Alliance, AllianceMember, GlobalResolution, AllianceWarNotification, AllianceTreaty } from '@/types/database'
 import IdeologyPanel from './IdeologyPanel'
 import AllianceSection from './AllianceSection'
 import UnResolutions from './UnResolutions'
 import AllianceWarAlerts from './AllianceWarAlerts'
+import AllianceTreaties from './AllianceTreaties'
 import styles from './politics.module.css'
 
 export default async function PoliticsPage() {
@@ -23,6 +24,9 @@ export default async function PoliticsPage() {
   let votedResolutionIds = new Set<string>()
   let nationOptions: { id: string; name: string }[] = []
   let warAlerts: (AllianceWarNotification & { allyName?: string; attackerName?: string })[] = []
+  let treaties: (AllianceTreaty & { partnerName?: string })[] = []
+  let otherAlliances: { id: string; name: string; tag: string }[] = []
+
 
   if (user) {
     const { data: nationData } = await supabase
@@ -56,6 +60,7 @@ export default async function PoliticsPage() {
             .in('id', nationIds)
           memberNames = Object.fromEntries((namedNations ?? []).map((n) => [n.id, n.name]))
         }
+      }
       if (membership) {
         const { data: notifData } = await supabase
           .from('alliance_war_notifications')
@@ -80,7 +85,37 @@ export default async function PoliticsPage() {
             attackerName: nameById.get(n.attacker_nation_id),
           }))
         }
-      }
+        const membershipAllianceId = membership.alliance_id
+
+        const { data: treatyData } = await supabase
+          .from('alliance_treaties')
+          .select('*')
+          .or(`alliance_a_id.eq.${membershipAllianceId},alliance_b_id.eq.${membershipAllianceId}`)
+          .order('created_at', { ascending: false })
+
+        const rawTreaties = treatyData ?? []
+        const partnerAllianceIds = rawTreaties.map((t) =>
+          t.alliance_a_id === membershipAllianceId ? t.alliance_b_id : t.alliance_a_id
+        )
+        const { data: partnerAlliances } = await supabase
+          .from('alliances')
+          .select('id, name, tag')
+          .in('id', partnerAllianceIds.length > 0 ? partnerAllianceIds : ['00000000-0000-0000-0000-000000000000'])
+        const partnerNameById = new Map((partnerAlliances ?? []).map((a) => [a.id, `${a.name} [${a.tag}]`]))
+
+        treaties = rawTreaties.map((t) => ({
+          ...t,
+          partnerName: partnerNameById.get(
+            t.alliance_a_id === membershipAllianceId ? t.alliance_b_id : t.alliance_a_id
+          ),
+        }))
+
+        const { data: allOtherAlliances } = await supabase
+          .from('alliances')
+          .select('id, name, tag')
+          .neq('id', membershipAllianceId)
+        otherAlliances = allOtherAlliances ?? []
+
       } else {
         browsableAlliances = allAlliances.map((a) => ({
           ...a,
@@ -118,6 +153,17 @@ export default async function PoliticsPage() {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Alliance</h2>
         <AllianceWarAlerts notifications={warAlerts} />
+        {nation && membership ? (
+          <div style={{ marginBottom: 16 }}>
+            <AllianceTreaties
+              nationId={nation.id}
+              currentAllianceId={membership.alliance_id}
+              isLeader={membership.role === 'LEADER'}
+              treaties={treaties}
+              otherAlliances={otherAlliances}
+            />
+          </div>
+        ) : null}
         {nation ? (
           <AllianceSection
             nationId={nation.id}
