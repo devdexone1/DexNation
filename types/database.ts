@@ -302,3 +302,12 @@ export interface HospitalSpec {
   light_treatment_cost: number
   severe_treatment_cost: number
 }
+
+export interface AllianceWarNotification {
+  id: string
+  alliance_id: string
+  ally_nation_id: string
+  attacker_nation_id: string
+  war_id: string
+  created_at: string
+}

@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Nation, Government, Alliance, AllianceMember, GlobalResolution } from '@/types/database'
+import type { Nation, Government, Alliance, AllianceMember, GlobalResolution, AllianceWarNotification } from '@/types/database'
 import IdeologyPanel from './IdeologyPanel'
 import AllianceSection from './AllianceSection'
 import UnResolutions from './UnResolutions'
+import AllianceWarAlerts from './AllianceWarAlerts'
 import styles from './politics.module.css'
 
 export default async function PoliticsPage() {
@@ -21,6 +22,7 @@ export default async function PoliticsPage() {
   let resolutions: GlobalResolution[] = []
   let votedResolutionIds = new Set<string>()
   let nationOptions: { id: string; name: string }[] = []
+  let warAlerts: (AllianceWarNotification & { allyName?: string; attackerName?: string })[] = []
 
   if (user) {
     const { data: nationData } = await supabase
@@ -54,6 +56,31 @@ export default async function PoliticsPage() {
             .in('id', nationIds)
           memberNames = Object.fromEntries((namedNations ?? []).map((n) => [n.id, n.name]))
         }
+      if (membership) {
+        const { data: notifData } = await supabase
+          .from('alliance_war_notifications')
+          .select('*')
+          .eq('alliance_id', membership.alliance_id)
+          .order('created_at', { ascending: false })
+          .limit(10)
+
+        const rawNotifs = notifData ?? []
+        if (rawNotifs.length > 0) {
+          const nationIds = Array.from(
+            new Set(rawNotifs.flatMap((n) => [n.ally_nation_id, n.attacker_nation_id]))
+          )
+          const { data: notifNations } = await supabase
+            .from('nations')
+            .select('id, name')
+            .in('id', nationIds)
+          const nameById = new Map((notifNations ?? []).map((n) => [n.id, n.name]))
+          warAlerts = rawNotifs.map((n) => ({
+            ...n,
+            allyName: nameById.get(n.ally_nation_id),
+            attackerName: nameById.get(n.attacker_nation_id),
+          }))
+        }
+      }
       } else {
         browsableAlliances = allAlliances.map((a) => ({
           ...a,
@@ -90,6 +117,7 @@ export default async function PoliticsPage() {
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Alliance</h2>
+        <AllianceWarAlerts notifications={warAlerts} />
         {nation ? (
           <AllianceSection
             nationId={nation.id}
