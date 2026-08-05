@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { applyForLoanAction } from './actions'
 import { formatCash } from '@/lib/format'
 import styles from './bank.module.css'
 
@@ -38,21 +38,12 @@ export default function BorrowForm({
     }
 
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('apply_for_loan', {
-          p_nation_id: nationId,
-          p_amount: amt,
-          p_duration_ticks: Number(duration),
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await applyForLoanAction(nationId, amt, Number(duration))
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

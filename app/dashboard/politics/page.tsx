@@ -1,10 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
-import type { Nation, Government, Alliance, AllianceMember, GlobalResolution, AllianceWarNotification, AllianceTreaty } from '@/types/database'
+import type { Nation, Government, Alliance, AllianceMember, GlobalResolution, AllianceWarNotification, AllianceTreaty, AllianceMemberDebt } from '@/types/database'
 import IdeologyPanel from './IdeologyPanel'
 import AllianceSection from './AllianceSection'
 import UnResolutions from './UnResolutions'
 import AllianceWarAlerts from './AllianceWarAlerts'
 import AllianceTreaties from './AllianceTreaties'
+import AllianceBailout from './AllianceBailout'
 import styles from './politics.module.css'
 
 export default async function PoliticsPage() {
@@ -26,6 +27,7 @@ export default async function PoliticsPage() {
   let warAlerts: (AllianceWarNotification & { allyName?: string; attackerName?: string })[] = []
   let treaties: (AllianceTreaty & { partnerName?: string })[] = []
   let otherAlliances: { id: string; name: string; tag: string }[] = []
+  let membersInDebt: AllianceMemberDebt[] = []
 
 
   if (user) {
@@ -86,6 +88,37 @@ export default async function PoliticsPage() {
           }))
         }
         const membershipAllianceId = membership.alliance_id
+
+        const { data: memberList } = await supabase
+          .from('alliance_members')
+          .select('nation_id, nations(name)')
+          .eq('alliance_id', membershipAllianceId)
+
+        const memberNationIds = (memberList ?? []).map((m) => m.nation_id)
+        if (memberNationIds.length > 0) {
+          const { data: debtLoans } = await supabase
+            .from('world_bank_loans')
+            .select('nation_id, remaining_principal, status')
+            .in('nation_id', memberNationIds)
+            .in('status', ['ACTIVE', 'ARREARS', 'DEFAULT'])
+
+          const debtByNation = new Map<string, number>()
+          for (const loan of debtLoans ?? []) {
+            debtByNation.set(loan.nation_id, (debtByNation.get(loan.nation_id) ?? 0) + loan.remaining_principal)
+          }
+
+          const nameByNationId = new Map(
+            (memberList ?? []).map((m: any) => [m.nation_id, m.nations?.name ?? 'Unknown'])
+          )
+
+          membersInDebt = Array.from(debtByNation.entries())
+            .filter(([, total]) => total > 0)
+            .map(([nationId, total]) => ({
+              nation_id: nationId,
+              nation_name: nameByNationId.get(nationId) ?? 'Unknown',
+              total_debt: total,
+            }))
+        }
 
         const { data: treatyData } = await supabase
           .from('alliance_treaties')
@@ -153,16 +186,12 @@ export default async function PoliticsPage() {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Alliance</h2>
         <AllianceWarAlerts notifications={warAlerts} />
-        {nation && membership ? (
-          <div style={{ marginBottom: 16 }}>
-            <AllianceTreaties
-              nationId={nation.id}
-              currentAllianceId={membership.alliance_id}
-              isLeader={membership.role === 'LEADER'}
-              treaties={treaties}
-              otherAlliances={otherAlliances}
-            />
-          </div>
+        {nation && membership && membership.role === 'LEADER' && currentAlliance ? (
+          <AllianceBailout
+            leaderNationId={nation.id}
+            treasuryCash={currentAlliance.treasury_cash}
+            membersInDebt={membersInDebt}
+          />
         ) : null}
         {nation ? (
           <AllianceSection

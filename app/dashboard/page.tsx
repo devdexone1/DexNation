@@ -32,7 +32,7 @@ export default async function OverviewPage() {
         supabase.from('governments').select('*').eq('nation_id', nation.id).maybeSingle(),
         supabase
           .from('nation_stocks')
-          .select('resource_type, amount, max_capacity')
+          .select('*')
           .eq('nation_id', nation.id)
           .order('resource_type', { ascending: true }),
         supabase

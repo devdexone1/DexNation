@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { reformIdeologyAction } from './actions'
 import { formatCash } from '@/lib/format'
 import styles from './politics.module.css'
 
@@ -52,20 +52,12 @@ export default function IdeologyPanel({
   function handleReform(newIdeology: string) {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('reform_ideology', {
-          p_nation_id: nationId,
-          p_new_ideology: newIdeology,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await reformIdeologyAction(nationId, newIdeology)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

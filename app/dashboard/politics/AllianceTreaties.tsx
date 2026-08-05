@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { proposeAllianceTreatyAction, respondAllianceTreatyAction, cancelAllianceTreatyAction } from './actions'
 import type { AllianceTreaty } from '@/types/database'
 import styles from './politics.module.css'
 
@@ -29,52 +29,27 @@ export default function AllianceTreaties({
   function handlePropose() {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('propose_alliance_treaty', {
-          p_nation_id: nationId,
-          p_target_alliance_id: targetId,
-        })
-        if (rpcError) { setError(rpcError.message); return }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
-      }
+      const result = await proposeAllianceTreatyAction(nationId, targetId)
+      if (result.error) { setError(result.error); return }
+      window.location.reload()
     })
   }
 
   function handleRespond(treatyId: string, accept: boolean) {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('respond_alliance_treaty', {
-          p_nation_id: nationId,
-          p_treaty_id: treatyId,
-          p_accept: accept,
-        })
-        if (rpcError) { setError(rpcError.message); return }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
-      }
+      const result = await respondAllianceTreatyAction(nationId, treatyId, accept)
+      if (result.error) { setError(result.error); return }
+      window.location.reload()
     })
   }
 
   function handleCancel(treatyId: string) {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('cancel_alliance_treaty', {
-          p_nation_id: nationId,
-          p_treaty_id: treatyId,
-        })
-        if (rpcError) { setError(rpcError.message); return }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
-      }
+      const result = await cancelAllianceTreatyAction(nationId, treatyId)
+      if (result.error) { setError(result.error); return }
+      window.location.reload()
     })
   }
 

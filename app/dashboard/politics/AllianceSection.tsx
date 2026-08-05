@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createAllianceAction, joinAllianceAction, leaveAllianceAction } from './actions'
 import { formatCash } from '@/lib/format'
 import type { Alliance, AllianceMember } from '@/types/database'
 import styles from './politics.module.css'
@@ -42,60 +42,36 @@ export default function AllianceSection({
       return
     }
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('create_alliance', {
-          p_nation_id: nationId,
-          p_name: name.trim(),
-          p_tag: tag.trim(),
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await createAllianceAction(nationId, name.trim(), tag.trim())
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 
   function handleJoin(allianceId: string) {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('join_alliance', {
-          p_nation_id: nationId,
-          p_alliance_id: allianceId,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await joinAllianceAction(nationId, allianceId)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 
   function handleLeave() {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('leave_alliance', {
-          p_nation_id: nationId,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await leaveAllianceAction(nationId)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

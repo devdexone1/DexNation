@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { queueResearchAction, dequeueResearchAction } from './actions'
 import styles from './research.module.css'
 
 export default function TechNodeActions({
@@ -19,40 +19,24 @@ export default function TechNodeActions({
   function handleQueue() {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('queue_research', {
-          p_nation_id: nationId,
-          p_tech_id: techId,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await queueResearchAction(nationId, techId)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 
   function handleDequeue() {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('dequeue_research', {
-          p_nation_id: nationId,
-          p_tech_id: techId,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await dequeueResearchAction(nationId, techId)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

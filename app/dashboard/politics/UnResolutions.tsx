@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { proposeResolutionAction, castResolutionVoteAction } from './actions'
 import type { GlobalResolution } from '@/types/database'
 import styles from './politics.module.css'
 
@@ -30,42 +30,28 @@ export default function UnResolutions({
     e.preventDefault()
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('propose_resolution', {
-          p_nation_id: nationId,
-          p_resolution_type: resType,
-          p_target_nation_id: resType === 'INTEREST_RATE_CAP' ? null : targetId,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await proposeResolutionAction(
+        nationId,
+        resType,
+        resType === 'INTEREST_RATE_CAP' ? null : targetId
+      )
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 
   function handleVote(resolutionId: string, choice: 'FOR' | 'AGAINST') {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('cast_resolution_vote', {
-          p_nation_id: nationId,
-          p_resolution_id: resolutionId,
-          p_vote_choice: choice,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await castResolutionVoteAction(nationId, resolutionId, choice)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

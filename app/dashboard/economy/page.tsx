@@ -92,10 +92,16 @@ export default async function EconomyPage() {
                   {b.building_types?.category ? BUILDING_CATEGORY_LABELS[b.building_types.category] : ''}
                 </span>
                 <span
-                  className={`badge ${b.status === 'ACTIVE' ? 'badge--positive' : 'badge--neutral'}`}
+                  className={`badge ${
+                    b.status === 'ACTIVE'
+                      ? 'badge--positive'
+                      : b.status === 'STORAGE_FULL'
+                        ? 'badge--accent'
+                        : 'badge--neutral'
+                  }`}
                   style={{ width: 'fit-content' }}
                 >
-                  {b.status}
+                  {b.status === 'STORAGE_FULL' ? 'WAREHOUSE FULL' : b.status}
                 </span>
               </div>
             ))}

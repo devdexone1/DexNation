@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { makeLoanPaymentAction } from './actions'
 import { formatCash, formatPercent } from '@/lib/format'
 import type { WorldBankLoan } from '@/types/database'
 import styles from './bank.module.css'
@@ -19,21 +19,12 @@ export default function LoanRow({ loan, nationId }: { loan: WorldBankLoan; natio
       return
     }
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('make_loan_payment', {
-          p_nation_id: nationId,
-          p_loan_id: loan.id,
-          p_amount: amt,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await makeLoanPaymentAction(nationId, loan.id, amt)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

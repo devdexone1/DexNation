@@ -321,3 +321,9 @@ export interface AllianceTreaty {
   created_at: string
   responded_at: string | null
 }
+
+export interface AllianceMemberDebt {
+  nation_id: string
+  nation_name: string
+  total_debt: number
+}
