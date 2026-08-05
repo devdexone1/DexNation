@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { buyMarketOrderAction, cancelSellOrderAction } from './actions'
 import { formatCash, formatNumber } from '@/lib/format'
 import type { P2PMarketOrder } from '@/types/database'
 import styles from './market.module.css'
@@ -24,20 +24,12 @@ export default function OrderRow({
   function handleCancel() {
     setError('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('cancel_sell_order', {
-          p_nation_id: nationId,
-          p_order_id: order.id,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await cancelSellOrderAction(nationId, order.id)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 
@@ -49,21 +41,12 @@ export default function OrderRow({
       return
     }
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('buy_market_order', {
-          p_buyer_nation_id: nationId,
-          p_order_id: order.id,
-          p_quantity: quantity,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await buyMarketOrderAction(nationId, order.id, quantity)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 

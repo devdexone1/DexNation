@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { declareWarAction } from './actions'
 import styles from './military.module.css'
 
 interface NationResult {
@@ -42,23 +43,13 @@ export default function DeclareWarPanel({ nationId }: { nationId: string }) {
     setError('')
     setSuccess('')
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('declare_war', {
-          p_attacker_id: nationId,
-          p_defender_id: defenderId,
-        })
-
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-
-        setSuccess('War declared. Refreshing…')
-        setTimeout(() => window.location.reload(), 800)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await declareWarAction(nationId, defenderId)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      setSuccess('War declared. Refreshing…')
+      setTimeout(() => window.location.reload(), 800)
     })
   }
 

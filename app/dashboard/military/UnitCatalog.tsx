@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { recruitUnitAction } from './actions'
 import { formatCash, formatNumber } from '@/lib/format'
 import type { MilitaryUnitType } from '@/types/database'
 import styles from './military.module.css'
@@ -30,27 +30,13 @@ export default function UnitCatalog({
     setPendingId(unitId)
 
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error } = await supabase.rpc('recruit_unit', {
-          p_nation_id: nationId,
-          p_unit_type_id: unitId,
-        })
-
-        if (error) {
-          setErrors((prev) => ({ ...prev, [unitId]: error.message }))
-          setPendingId(null)
-          return
-        }
-
-        window.location.reload()
-      } catch (err) {
-        setErrors((prev) => ({
-          ...prev,
-          [unitId]: err instanceof Error ? err.message : 'Something went wrong.',
-        }))
+      const result = await recruitUnitAction(nationId, unitId)
+      if (result.error) {
+        setErrors((prev) => ({ ...prev, [unitId]: result.error! }))
         setPendingId(null)
+        return
       }
+      window.location.reload()
     })
   }
 

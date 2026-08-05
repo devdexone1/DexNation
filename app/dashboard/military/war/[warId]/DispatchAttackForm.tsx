@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { dispatchAttackAction } from '@/app/dashboard/military/actions'
 import { formatNumber } from '@/lib/format'
 import styles from './war-room.module.css'
 
@@ -44,24 +44,14 @@ export default function DispatchAttackForm({
     }
 
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('dispatch_attack', {
-          p_war_id: warId,
-          p_attacker_nation_id: attackerNationId,
-          p_unit_type: unitType,
-          p_amount: qty,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-        setSuccess('Troops dispatched. Check "En Route" below for arrival time.')
-        setAmount('')
-        setTimeout(() => window.location.reload(), 1000)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await dispatchAttackAction(warId, attackerNationId, unitType, qty)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      setSuccess('Troops dispatched. Check "En Route" below for arrival time.')
+      setAmount('')
+      setTimeout(() => window.location.reload(), 1000)
     })
   }
 

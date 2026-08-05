@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createSellOrderAction } from './actions'
 import { formatNumber } from '@/lib/format'
 import styles from './market.module.css'
 
@@ -46,24 +46,12 @@ export default function SellOrderForm({
     }
 
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: rpcError } = await supabase.rpc('create_sell_order', {
-          p_nation_id: nationId,
-          p_resource_type: resourceType,
-          p_unit_price_cash: unitPrice,
-          p_quantity: qty,
-        })
-
-        if (rpcError) {
-          setError(rpcError.message)
-          return
-        }
-
-        window.location.reload()
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await createSellOrderAction(nationId, resourceType, unitPrice, qty)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      window.location.reload()
     })
   }
 
