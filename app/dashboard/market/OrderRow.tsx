@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { buyMarketOrderAction, cancelSellOrderAction } from './actions'
 import { formatCash, formatNumber } from '@/lib/format'
@@ -62,7 +63,14 @@ export default function OrderRow({
         </span>
         <span className={styles.orderMeta}>
           {formatCash(order.unit_price_cash)} / unit
-          {mode === 'buy' && sellerName ? ` · sold by ${sellerName}` : ''}
+          {mode === 'buy' && sellerName ? (
+            <>
+              {' · sold by '}
+              <Link href={`/dashboard/nations/${order.seller_nation_id}`} style={{ textDecoration: 'underline' }}>
+                {sellerName}
+              </Link>
+            </>
+          ) : ''}
         </span>
         {error ? <span className={styles.error}>{error}</span> : null}
       </div>

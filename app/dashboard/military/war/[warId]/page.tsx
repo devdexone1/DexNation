@@ -130,7 +130,13 @@ export default async function WarRoomPage({
       <div className={styles.header}>
         <div className={styles.eyebrow}>War Room</div>
         <h1 className={styles.title}>
-          {attackerName} vs {defenderName}
+          <Link href={`/dashboard/nations/${war.attacker_id}`} style={{ textDecoration: 'underline' }}>
+            {attackerName}
+          </Link>{' '}
+          vs{' '}
+          <Link href={`/dashboard/nations/${war.defender_id}`} style={{ textDecoration: 'underline' }}>
+            {defenderName}
+          </Link>
         </h1>
       </div>
 

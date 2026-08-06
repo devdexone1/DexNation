@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { createAllianceAction, joinAllianceAction, leaveAllianceAction } from './actions'
 import { formatCash } from '@/lib/format'
 import type { Alliance, AllianceMember } from '@/types/database'
@@ -105,7 +106,9 @@ export default function AllianceSection({
         <div>
           {members.map((m) => (
             <div className={styles.memberRow} key={m.id}>
-              <span>{memberNames[m.nation_id] ?? 'Unknown Nation'}</span>
+              <Link href={`/dashboard/nations/${m.nation_id}`} style={{ textDecoration: 'underline', color: 'inherit' }}>
+                {memberNames[m.nation_id] ?? 'Unknown Nation'}
+              </Link>
               <span className={`badge ${m.role === 'LEADER' ? 'badge--positive' : 'badge--neutral'}`}>
                 {m.role}
               </span>
