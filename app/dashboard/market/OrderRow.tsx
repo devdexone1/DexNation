@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { buyMarketOrderAction, cancelSellOrderAction } from './actions'
 import { formatCash, formatNumber } from '@/lib/format'
 import type { P2PMarketOrder } from '@/types/database'
@@ -18,6 +19,7 @@ export default function OrderRow({
   sellerName?: string
 }) {
   const [qty, setQty] = useState(String(order.remaining_quantity))
+  const router = useRouter()
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
 
@@ -29,7 +31,7 @@ export default function OrderRow({
         setError(result.error)
         return
       }
-      window.location.reload()
+      router.refresh()
     })
   }
 
@@ -46,7 +48,7 @@ export default function OrderRow({
         setError(result.error)
         return
       }
-      window.location.reload()
+      router.refresh()
     })
   }
 

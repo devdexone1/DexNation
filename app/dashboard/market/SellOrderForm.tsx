@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { createSellOrderAction } from './actions'
 import { formatNumber } from '@/lib/format'
 import styles from './market.module.css'
@@ -12,6 +13,7 @@ export default function SellOrderForm({
   nationId: string
   stockByType: Record<string, number>
 }) {
+  const router = useRouter()
   const availableResources = Object.entries(stockByType).filter(([, amt]) => amt > 0)
   const [resourceType, setResourceType] = useState(availableResources[0]?.[0] ?? '')
   const [quantity, setQuantity] = useState('')
@@ -51,7 +53,7 @@ export default function SellOrderForm({
         setError(result.error)
         return
       }
-      window.location.reload()
+      router.refresh()
     })
   }
 

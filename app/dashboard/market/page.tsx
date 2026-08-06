@@ -3,6 +3,7 @@ import { formatCash, formatNumber } from '@/lib/format'
 import type { Nation, NationStock, P2PMarketOrder, P2PTradeHistoryItem } from '@/types/database'
 import SellOrderForm from './SellOrderForm'
 import OrderRow from './OrderRow'
+import RealtimeRefresher from '@/components/RealtimeRefresher'
 import styles from './market.module.css'
 
 interface TransitRow {
@@ -85,6 +86,10 @@ export default async function MarketPage() {
 
   return (
     <div>
+      <RealtimeRefresher
+        channelName="market-realtime"
+        watches={[{ table: 'p2p_market_orders' }, { table: 'p2p_trade_history' }]}
+      />
       <div className={styles.header}>
         <div className={styles.eyebrow}>Market</div>
         <h1 className={styles.title}>P2P Trading</h1>

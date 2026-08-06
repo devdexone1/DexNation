@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatNumber } from '@/lib/format'
 import type { Nation, Government, AllianceMember, Alliance, CreditStatus } from '@/types/database'
 import RenameNationForm from './RenameNationForm'
+import FlagUploadForm from './FlagUploadForm'
 import SignOutButton from './SignOutButton'
 import styles from './profile.module.css'
 
@@ -143,6 +144,18 @@ export default async function ProfilePage() {
 
           {nation ? <RenameNationForm nationId={nation.id} currentName={nation.name} /> : null}
         </div>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Flag</h2>
+        {nation && user ? (
+          <FlagUploadForm
+            userId={user.id}
+            nationId={nation.id}
+            currentFlagUrl={nation.flag_url}
+            currentFrame={nation.flag_frame}
+          />
+        ) : null}
       </div>
 
       <div className={styles.section}>

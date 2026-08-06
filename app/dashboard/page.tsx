@@ -2,7 +2,9 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import styles from './overview.module.css'
+import FlagDisplay from '@/components/FlagDisplay'
 import type { Government, Nation, NationStock, NationBuilding, BuildingType } from '@/types/database'
+import RealtimeRefresher from '@/components/RealtimeRefresher'
 
 interface OwnedBuildingRow extends NationBuilding {
   building_types: Pick<BuildingType, 'name' | 'category'> | null
@@ -81,6 +83,20 @@ export default async function OverviewPage() {
 
   return (
     <div>
+      {nation ? (
+        <RealtimeRefresher
+          channelName={`dashboard-realtime-${nation.id}`}
+          watches={[
+            { table: 'nations', filter: `id=eq.${nation.id}` },
+            { table: 'nation_stocks', filter: `nation_id=eq.${nation.id}` },
+            { table: 'nation_buildings', filter: `nation_id=eq.${nation.id}` },
+          ]}
+        />
+      ) : null}
+       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+        <FlagDisplay flagUrl={nation?.flag_url ?? null} frame={nation?.flag_frame ?? 'none'} size="hero" />
+      </div>
+
       <div className={styles.header}>
         <div>
           <div className={styles.eyebrow}>Nation Overview</div>

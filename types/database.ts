@@ -11,6 +11,9 @@ export interface Nation {
   population: number
   approval_rating: number
   daily_gdp: number
+  research_points: number
+  flag_url: string | null
+  flag_frame: 'none' | 'classic' | 'modern' | 'ornate'
   created_at: string
 }
 
@@ -339,3 +342,10 @@ export interface NavalDeployment {
   route_type: 'LAND' | 'SEA'
   arrival_at: string
 }
+
+export const FLAG_FRAMES = [
+  { id: 'none', label: 'No Frame' },
+  { id: 'classic', label: 'Classic Gold' },
+  { id: 'modern', label: 'Modern Slate' },
+  { id: 'ornate', label: 'Ornate Bronze' },
+] as const

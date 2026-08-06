@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/Sidebar'
+import FlagDisplay from '@/components/FlagDisplay'
 import { formatCash, formatPercent } from '@/lib/format'
 import styles from './dashboard.module.css'
 import type { Nation } from '@/types/database'
