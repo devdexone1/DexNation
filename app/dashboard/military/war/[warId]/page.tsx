@@ -4,6 +4,7 @@ import type { Nation, TroopMovement, BattleLog } from '@/types/database'
 import DispatchAttackForm from './DispatchAttackForm'
 import TroopMovementsList from './TroopMovementsList'
 import BattleLogItem from './BattleLogItem'
+import NavalBlockadePanel from './NavalBlockadePanel'
 import styles from './war-room.module.css'
 
 export default async function WarRoomPage({
@@ -22,6 +23,8 @@ export default async function WarRoomPage({
   let attackerName = 'Unknown'
   let defenderName = 'Unknown'
   let deployableUnits: { unit_type: string; name: string; amount: number }[] = []
+  let deployableNavalUnits: { unit_type: string; name: string; amount: number }[] = []
+  let blockadeHolder: { nation_id: string; nation_name: string; unit_name: string; amount: number } | null = null
   let movements: TroopMovement[] = []
   let battles: BattleLog[] = []
   let unitNameById: Record<string, string> = {}
@@ -69,16 +72,38 @@ export default async function WarRoomPage({
       battles = (battlesRes.data as BattleLog[]) ?? []
       unitNameById = Object.fromEntries((unitTypesRes.data ?? []).map((u) => [u.id, u.name]))
 
-      if (nation && nation.id === war.attacker_id) {
+      if (nation && (nation.id === war.attacker_id || nation.id === war.defender_id)) {
         const { data: units } = await supabase
           .from('nation_military')
           .select('unit_type, amount, military_unit_types(name, branch)')
           .eq('nation_id', nation.id)
           .gt('amount', 0)
 
-        deployableUnits = (units ?? [])
-          .filter((u: any) => u.military_unit_types?.branch === 'LAND')
+        if (nation.id === war.attacker_id) {
+          deployableUnits = (units ?? [])
+            .filter((u: any) => u.military_unit_types?.branch === 'LAND')
+            .map((u: any) => ({ unit_type: u.unit_type, name: u.military_unit_types.name, amount: u.amount }))
+        }
+
+        deployableNavalUnits = (units ?? [])
+          .filter((u: any) => u.military_unit_types?.branch === 'NAVAL')
           .map((u: any) => ({ unit_type: u.unit_type, name: u.military_unit_types.name, amount: u.amount }))
+      }
+
+      const { data: holdingDeployment } = await supabase
+        .from('naval_deployments')
+        .select('nation_id, unit_type, amount, military_unit_types(name)')
+        .eq('war_id', warId)
+        .eq('status', 'HOLDING')
+        .maybeSingle()
+
+      if (holdingDeployment) {
+        blockadeHolder = {
+          nation_id: holdingDeployment.nation_id,
+          nation_name: holdingDeployment.nation_id === war.attacker_id ? attackerName : defenderName,
+          unit_name: (holdingDeployment as any).military_unit_types?.name ?? holdingDeployment.unit_type,
+          amount: holdingDeployment.amount,
+        }
       }
     }
   }
@@ -116,6 +141,18 @@ export default async function WarRoomPage({
             warId={war.id}
             attackerNationId={nation!.id}
             deployableUnits={deployableUnits}
+          />
+        </div>
+      ) : null}
+
+      {(nation?.id === war.attacker_id || nation?.id === war.defender_id) && war.war_status === 'ACTIVE' ? (
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Naval Blockade</h2>
+          <NavalBlockadePanel
+            warId={war.id}
+            nationId={nation!.id}
+            holder={blockadeHolder}
+            deployableUnits={deployableNavalUnits}
           />
         </div>
       ) : null}

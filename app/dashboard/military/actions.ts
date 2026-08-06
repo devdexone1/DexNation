@@ -106,3 +106,62 @@ export async function dispatchAttackAction(
   await logAudit(user.id, attackerNationId, ip, 'ACTION_SUCCESS', { action: 'dispatch_attack', unitType, amount })
   return { success: true }
 }
+
+export async function dispatchNavalAction(
+  warId: string,
+  nationId: string,
+  unitType: string,
+  amount: number
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const ip = await getClientIp()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Session not found. Please sign in again.' }
+
+  const allowed = await checkRateLimit(MILITARY_RATE_LIMIT_KEY(user.id), 5, 0.1)
+  if (!allowed) {
+    await logAudit(user.id, nationId, ip, 'RATE_LIMIT_EXCEEDED', { action: 'dispatch_naval' })
+    return { error: 'Too many military actions — please slow down.' }
+  }
+
+  const { error } = await supabase.rpc('dispatch_naval', {
+    p_war_id: warId,
+    p_nation_id: nationId,
+    p_unit_type: unitType,
+    p_amount: amount,
+  })
+
+  if (error) {
+    await logAudit(user.id, nationId, ip, 'ACTION_FAILED', { action: 'dispatch_naval', error: error.message })
+    return { error: error.message }
+  }
+
+  await logAudit(user.id, nationId, ip, 'ACTION_SUCCESS', { action: 'dispatch_naval', unitType, amount })
+  return { success: true }
+}
+
+export async function recallNavalBlockadeAction(nationId: string, warId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const ip = await getClientIp()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Session not found. Please sign in again.' }
+
+  const { error } = await supabase.rpc('recall_naval_blockade', {
+    p_nation_id: nationId,
+    p_war_id: warId,
+  })
+
+  if (error) {
+    await logAudit(user.id, nationId, ip, 'ACTION_FAILED', { action: 'recall_naval_blockade', error: error.message })
+    return { error: error.message }
+  }
+
+  await logAudit(user.id, nationId, ip, 'ACTION_SUCCESS', { action: 'recall_naval_blockade' })
+  return { success: true }
+}

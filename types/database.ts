@@ -293,6 +293,7 @@ export interface BattleLog {
   defender_end: number
   winner: 'ATTACKER' | 'DEFENDER'
   replay_log: { t: number; attacker: number; defender: number }[]
+  is_naval: boolean
   created_at: string
 }
 
@@ -326,4 +327,15 @@ export interface AllianceMemberDebt {
   nation_id: string
   nation_name: string
   total_debt: number
+}
+
+export interface NavalDeployment {
+  id: string
+  war_id: string
+  nation_id: string
+  unit_type: string
+  amount: number
+  status: 'EN_ROUTE' | 'HOLDING' | 'RETURNING'
+  route_type: 'LAND' | 'SEA'
+  arrival_at: string
 }
