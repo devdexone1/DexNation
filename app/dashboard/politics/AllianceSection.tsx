@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import AllianceBadgeButton from '@/components/AllianceBadgeButton'
 import { createAllianceAction, joinAllianceAction, leaveAllianceAction } from './actions'
 import { formatCash } from '@/lib/format'
 import type { Alliance, AllianceMember } from '@/types/database'
@@ -82,7 +83,13 @@ export default function AllianceSection({
         <div className={styles.allianceHeader}>
           <div>
             <div className={styles.allianceName}>
-              {currentAlliance.name} <span className={styles.allianceTag}>[{currentAlliance.tag}]</span>
+              <AllianceBadgeButton
+                allianceId={currentAlliance.id}
+                label={`${currentAlliance.name} [${currentAlliance.tag}]`}
+                viewerNationId={nationId}
+                viewerAllianceId={currentAlliance.id}
+                badgeClassName={styles.allianceName}
+              />
             </div>
           </div>
           <span className="badge badge--accent">{membership.role}</span>
@@ -180,9 +187,15 @@ export default function AllianceSection({
           browsableAlliances.map((a) => (
             <div className={styles.browseRow} key={a.id}>
               <span>
-                {a.name} <span className={styles.allianceTag}>[{a.tag}]</span>{' '}
+                <AllianceBadgeButton
+                  allianceId={a.id}
+                  label={`${a.name} [${a.tag}]`}
+                  viewerNationId={nationId}
+                  viewerAllianceId={null}
+                  badgeClassName={styles.notifMeta}
+                />
                 <span style={{ color: 'var(--color-ink-faint)' }}>
-                  · {a.memberCount}/{a.max_members} members
+                  {' '}· {a.memberCount}/{a.max_members} members
                 </span>
               </span>
               <button

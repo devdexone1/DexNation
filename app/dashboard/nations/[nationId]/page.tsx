@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import FlagDisplay from '@/components/FlagDisplay'
 import DeclareWarFromProfile from './DeclareWarFromProfile'
+import AllianceBadgeButton from '@/components/AllianceBadgeButton'
 import styles from './nation-profile.module.css'
 
 export default async function NationProfilePage({
@@ -57,11 +58,11 @@ export default async function NationProfilePage({
   const battles = battlesRes.data ?? []
   const viewerNation = viewerNationRes.data as { id: string; name: string } | null
 
-  let allianceInfo: { name: string; tag: string } | null = null
+  let allianceInfo: { id: string; name: string; tag: string } | null = null
   if (membership) {
     const { data: allianceData } = await supabase
       .from('alliances')
-      .select('name, tag')
+      .select('id, name, tag')
       .eq('id', membership.alliance_id)
       .maybeSingle()
     allianceInfo = allianceData
@@ -78,7 +79,15 @@ export default async function NationProfilePage({
     const { data: relatedNations } = await supabase.from('nations').select('id, name').in('id', Array.from(relatedIds))
     for (const n of relatedNations ?? []) nameById.set(n.id, n.name)
   }
-
+  let viewerAllianceId: string | null = null
+  if (viewerNation) {
+    const { data: viewerMembership } = await supabase
+      .from('alliance_members')
+      .select('alliance_id')
+      .eq('nation_id', viewerNation.id)
+      .maybeSingle()
+    viewerAllianceId = viewerMembership?.alliance_id ?? null
+  }
   const isOwnProfile = viewerNation?.id === nationId
   const alreadyAtWar = wars.some(
     (w) => w.attacker_id === viewerNation?.id || w.defender_id === viewerNation?.id
@@ -93,7 +102,12 @@ export default async function NationProfilePage({
           <span className="badge badge--neutral">{nation.continent_id}</span>
           {government ? <span className="badge badge--accent">{government.ideology}</span> : null}
           {allianceInfo ? (
-            <span className="badge badge--positive">{allianceInfo.name} [{allianceInfo.tag}]</span>
+            <AllianceBadgeButton
+              allianceId={allianceInfo.id}
+              label={`${allianceInfo.name} [${allianceInfo.tag}]`}
+              viewerNationId={viewerNation?.id ?? null}
+              viewerAllianceId={viewerAllianceId}
+            />
           ) : null}
         </div>
       </div>
