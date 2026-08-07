@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { buildBuildingAction } from './actions'
 import { formatCash, formatNumber } from '@/lib/format'
 import type { BuildingType } from '@/types/database'
 import styles from './economy.module.css'
@@ -26,29 +26,13 @@ export default function BuildingCatalog({
     setPendingId(buildingTypeId)
 
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error } = await supabase.rpc('build_building', {
-          p_nation_id: nationId,
-          p_building_type_id: buildingTypeId,
-        })
-
-        if (error) {
-          setErrors((prev) => ({ ...prev, [buildingTypeId]: error.message }))
-          setPendingId(null)
-          return
-        }
-
-        // Hard reload: simplest reliable way to refresh cash/stock/building
-        // state everywhere on the page after a successful build.
-        window.location.reload()
-      } catch (err) {
-        setErrors((prev) => ({
-          ...prev,
-          [buildingTypeId]: err instanceof Error ? err.message : 'Something went wrong.',
-        }))
+      const result = await buildBuildingAction(nationId, buildingTypeId)
+      if (result.error) {
+        setErrors((prev) => ({ ...prev, [buildingTypeId]: result.error! }))
         setPendingId(null)
+        return
       }
+      window.location.reload()
     })
   }
 

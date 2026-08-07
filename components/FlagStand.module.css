@@ -1,0 +1,71 @@
+.stand {
+  position: relative;
+  width: 70px;
+  height: 173px;
+  flex-shrink: 0;
+}
+
+.pole {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  bottom: 14px;
+  width: 4px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #8c6239, #d4af37, #8c6239);
+  border-radius: 2px;
+}
+
+.finial {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 35% 30%, #f0d878, #b8860b);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #7a5a06;
+}
+
+.base {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 34px;
+  height: 12px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, #6b6b6b, #3a3a3a);
+  border-radius: 50%;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+}
+
+.banner {
+  position: absolute;
+  top: 14px;
+  width: 44px;
+  height: 30px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--color-border-strong);
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.banner--right {
+  left: calc(50% + 1px);
+  transform: skewY(-4deg);
+  transform-origin: left center;
+}
+
+.banner--left {
+  right: calc(50% + 1px);
+  transform: scaleX(-1) skewY(-4deg);
+  transform-origin: left center;
+}
+
+.bannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

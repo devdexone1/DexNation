@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import styles from './overview.module.css'
 import FlagDisplay from '@/components/FlagDisplay'
+import FlagStand from '@/components/FlagStand'
 import type { Government, Nation, NationStock, NationBuilding, BuildingType } from '@/types/database'
 import RealtimeRefresher from '@/components/RealtimeRefresher'
 
@@ -93,8 +94,10 @@ export default async function OverviewPage() {
           ]}
         />
       ) : null}
-       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, marginBottom: 16 }}>
+        <FlagStand flagUrl={nation?.flag_url ?? null} side="left" />
         <FlagDisplay flagUrl={nation?.flag_url ?? null} frame={nation?.flag_frame ?? 'none'} size="hero" />
+        <FlagStand flagUrl={nation?.flag_url ?? null} side="right" />
       </div>
 
       <div className={styles.header}>
