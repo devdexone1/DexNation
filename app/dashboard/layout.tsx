@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/Sidebar'
+import ChatWidget from '@/components/chat/ChatWidget'
 import FlagDisplay from '@/components/FlagDisplay'
 import { formatCash, formatPercent } from '@/lib/format'
 import styles from './dashboard.module.css'
@@ -44,6 +45,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
         <main className={styles.content}>{children}</main>
       </div>
+      <ChatWidget myContinentId={nation?.continent_id ?? null} />
     </div>
   )
 }

@@ -1,0 +1,49 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  padding: 24px;
+}
+
+.card {
+  max-width: 420px;
+  padding: 40px;
+  text-align: center;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-negative);
+}
+
+.title {
+  font-size: 26px;
+  margin-top: 8px;
+}
+
+.reason {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.countdown {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+.countdownLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-faint);
+  margin-top: 4px;
+}

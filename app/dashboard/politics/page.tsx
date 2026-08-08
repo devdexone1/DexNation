@@ -3,6 +3,7 @@ import type { Nation, Government, Alliance, AllianceMember, GlobalResolution, Al
 import IdeologyPanel from './IdeologyPanel'
 import AllianceSection from './AllianceSection'
 import UnResolutions from './UnResolutions'
+import NationSearch from './NationSearch'
 import AllianceWarAlerts from './AllianceWarAlerts'
 import AllianceTreaties from './AllianceTreaties'
 import AllianceBailout from './AllianceBailout'
@@ -169,6 +170,11 @@ export default async function PoliticsPage() {
           computed yet without the Daily Tick engine), and ideology cooldown is shown for
           reference only rather than strictly enforced.
         </p>
+      </div>
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Find a Nation</h2>
+        <NationSearch />
       </div>
 
       <div className={styles.section}>

@@ -23,7 +23,6 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // REQUIRED: refresh the Supabase session token on every request (official @supabase/ssr pattern)
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -32,6 +31,8 @@ export async function middleware(request: NextRequest) {
   const isLoginRoute = path === '/login'
   const isCreateNationRoute = path.startsWith('/create-nation')
   const isDashboardRoute = path.startsWith('/dashboard')
+  const isAdminRoute = path.startsWith('/admin')
+  const isBannedRoute = path.startsWith('/banned')
   const isRoot = path === '/'
   const isAuthCallback = path.startsWith('/auth/callback')
 
@@ -39,35 +40,67 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Not logged in but trying to access a route that requires auth -> send to /login
-  if (!user && (isCreateNationRoute || isDashboardRoute || isRoot)) {
+  if (!user && (isCreateNationRoute || isDashboardRoute || isAdminRoute || isRoot)) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Logged in -> decide destination based on whether the player already has a nation
-  if (user && (isLoginRoute || isCreateNationRoute || isDashboardRoute || isRoot)) {
-    const { data: nation } = await supabase
-      .from('nations')
-      .select('id')
+  if (user) {
+    // Ban check applies to every protected route, before anything else.
+    const { data: activeBan } = await supabase
+      .from('bans')
+      .select('banned_until')
       .eq('user_id', user.id)
+      .gt('banned_until', new Date().toISOString())
+      .order('banned_until', { ascending: false })
+      .limit(1)
       .maybeSingle()
 
-    if (isLoginRoute) {
-      return NextResponse.redirect(
-        new URL(nation ? '/dashboard' : '/create-nation', request.url)
-      )
+    if (activeBan && !isBannedRoute && !isLoginRoute) {
+      return NextResponse.redirect(new URL('/banned', request.url))
     }
-    if (isRoot) {
-      return NextResponse.redirect(
-        new URL(nation ? '/dashboard' : '/create-nation', request.url)
-      )
-    }
-    if (isCreateNationRoute && nation) {
+    if (!activeBan && isBannedRoute) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-    if (isDashboardRoute && !nation) {
-      return NextResponse.redirect(new URL('/create-nation', request.url))
+
+    if (isAdminRoute) {
+      const { data: adminRow } = await supabase
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (!adminRow) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+      return response
     }
+
+    if (isLoginRoute || isCreateNationRoute || isDashboardRoute || isRoot) {
+      const { data: nation } = await supabase
+        .from('nations')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (isLoginRoute) {
+        return NextResponse.redirect(
+          new URL(nation ? '/dashboard' : '/create-nation', request.url)
+        )
+      }
+      if (isRoot) {
+        return NextResponse.redirect(
+          new URL(nation ? '/dashboard' : '/create-nation', request.url)
+        )
+      }
+      if (isCreateNationRoute && nation) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+      if (isDashboardRoute && !nation) {
+        return NextResponse.redirect(new URL('/create-nation', request.url))
+      }
+    }
+  } else if (isBannedRoute) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return response

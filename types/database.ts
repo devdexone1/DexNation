@@ -349,3 +349,23 @@ export const FLAG_FRAMES = [
   { id: 'modern', label: 'Modern Slate' },
   { id: 'ornate', label: 'Ornate Bronze' },
 ] as const
+
+export interface ChatMessage {
+  id: string
+  sender_user_id: string
+  sender_nation_id: string | null
+  sender_nation_name: string
+  scope: 'GLOBAL' | 'CONTINENT'
+  continent_id: string | null
+  message: string
+  created_at: string
+}
+
+export interface AdminInfo {
+  user_id: string
+  rank: number
+  title: string
+  can_mute: boolean
+  can_ban: boolean
+  max_ban_days: number
+}
