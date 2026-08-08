@@ -24,6 +24,18 @@ export default function ChatWidget({
   adminInfo: { isAdmin: boolean; canMute: boolean; canBan: boolean; maxBanDays: number } | null
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!openMenuId) return
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [openMenuId])
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<'CONTINENT' | 'GLOBAL'>('GLOBAL')
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -122,7 +134,15 @@ export default function ChatWidget({
               <div className={styles.emptyState}>No messages yet — say hello.</div>
             ) : (
               messages.map((m) => (
-                <div className={styles.messageRowWrap} key={m.id}>
+                <div
+                  className={styles.messageRowWrap}
+                  key={m.id}
+                  ref={openMenuId === m.id ? menuRef : null}
+                  onContextMenu={(e) => {
+                    e.preventDefault()
+                    setOpenMenuId(m.id)
+                  }}
+                >
                   <div className={styles.messageRow} style={{ flex: 1 }}>
                     <span className={styles.messageSender}>{m.sender_nation_name}:</span>
                     {m.message}

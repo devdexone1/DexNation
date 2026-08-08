@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useDebounce } from '@/lib/useDebounce'
 import { declareWarAction } from './actions'
 import styles from './military.module.css'
 
@@ -13,8 +14,19 @@ interface NationResult {
 
 export default function DeclareWarPanel({ nationId }: { nationId: string }) {
   const [query, setQuery] = useState('')
+  const debouncedQuery = useDebounce(query, 2000)
   const [results, setResults] = useState<NationResult[]>([])
   const [searching, setSearching] = useState(false)
+
+  useEffect(() => {
+    const trimmed = debouncedQuery.trim()
+    if (trimmed.length >= 2) {
+      handleSearch()
+    } else {
+      setResults([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isPending, startTransition] = useTransition()
