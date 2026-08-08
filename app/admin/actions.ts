@@ -36,3 +36,18 @@ export async function mutePlayerAction(
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function editNationStatAction(
+  targetNationId: string,
+  field: string,
+  newValue: number
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('admin_update_nation_stat', {
+    p_target_nation_id: targetNationId,
+    p_field: field,
+    p_new_value: newValue,
+  })
+  if (error) return { error: error.message }
+  return { success: true }
+}

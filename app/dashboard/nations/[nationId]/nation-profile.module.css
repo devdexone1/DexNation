@@ -87,3 +87,28 @@
   text-align: center;
   margin-top: 8px;
 }
+
+.highlightBar {
+  display: flex;
+  justify-content: space-around;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.highlightItem {
+  text-align: center;
+}
+
+.highlightValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.highlightLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  margin-top: 2px;
+}

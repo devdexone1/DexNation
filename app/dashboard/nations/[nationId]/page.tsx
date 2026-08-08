@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { formatCash, formatNumber, formatPercent } from '@/lib/format'
+import { formatCash, formatNumber, formatPercent, formatNationAge } from '@/lib/format'
 import FlagDisplay from '@/components/FlagDisplay'
 import DeclareWarFromProfile from './DeclareWarFromProfile'
 import AllianceBadgeButton from '@/components/AllianceBadgeButton'
@@ -25,7 +25,7 @@ export default async function NationProfilePage({
     )
   }
 
-  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes] = await Promise.all([
+  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, buildingsCountRes, techCountRes] = await Promise.all([
     supabase.from('governments').select('ideology, tax_rate, political_stability').eq('nation_id', nationId).maybeSingle(),
     supabase.from('alliance_members').select('alliance_id, role').eq('nation_id', nationId).maybeSingle(),
     supabase
@@ -49,6 +49,8 @@ export default async function NationProfilePage({
     user
       ? supabase.from('nations').select('id, name').eq('user_id', user.id).maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase.from('nation_buildings').select('id', { count: 'exact', head: true }).eq('nation_id', nationId),
+    supabase.from('nation_technologies').select('id', { count: 'exact', head: true }).eq('nation_id', nationId).eq('status', 'COMPLETED'),
   ])
 
   const government = govRes.data
@@ -110,6 +112,9 @@ export default async function NationProfilePage({
             />
           ) : null}
         </div>
+        <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', marginTop: 8 }}>
+          Founded {formatNationAge(nation.created_at)} ago
+        </p>
       </div>
 
       <div className={styles.statGrid}>
@@ -124,6 +129,25 @@ export default async function NationProfilePage({
         <div className={`${styles.statCard} card`}>
           <span className={styles.statLabel}>Daily GDP</span>
           <span className={`${styles.statValue} mono`}>{formatCash(nation.daily_gdp)}</span>
+        </div>
+      </div>
+
+      <div className={`${styles.highlightBar} card`}>
+        <div className={styles.highlightItem}>
+          <div className={styles.highlightValue}>{formatNumber(buildingsCountRes.count ?? 0)}</div>
+          <div className={styles.highlightLabel}>Buildings</div>
+        </div>
+        <div className={styles.highlightItem}>
+          <div className={styles.highlightValue}>{formatNumber(techCountRes.count ?? 0)}</div>
+          <div className={styles.highlightLabel}>Tech Completed</div>
+        </div>
+        <div className={styles.highlightItem}>
+          <div className={styles.highlightValue}>{wars.length}</div>
+          <div className={styles.highlightLabel}>Active Wars</div>
+        </div>
+        <div className={styles.highlightItem}>
+          <div className={styles.highlightValue}>{battles.filter((b) => b.winner === (b.attacker_nation_id === nationId ? 'ATTACKER' : 'DEFENDER')).length}</div>
+          <div className={styles.highlightLabel}>Battles Won</div>
         </div>
       </div>
 

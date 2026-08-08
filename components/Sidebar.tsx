@@ -82,10 +82,13 @@ const NAV_ITEMS = [
   { to: '/dashboard/research', label: 'Research', icon: 'research', ready: true },
   { to: '/dashboard/bank', label: 'World Bank', icon: 'bank', ready: true },
   { to: '/dashboard/market', label: 'Market', icon: 'market', ready: true },
+  { to: '/dashboard/leaderboard', label: 'Leaderboard', icon: 'profile', ready: true },
+  { to: '/dashboard/statistics', label: 'Statistics', icon: 'research', ready: true },
+  { to: '/dashboard/inventory', label: 'Inventory', icon: 'economy', ready: true },
   { to: '/dashboard/profile', label: 'Profile', icon: 'profile', ready: true },
 ]
 
-export default function Sidebar({ nationName }: { nationName: string }) {
+export default function Sidebar({ nationName, isAdmin }: { nationName: string; isAdmin?: boolean }) {
   const pathname = usePathname()
 
   async function handleSignOut() {
@@ -120,6 +123,12 @@ export default function Sidebar({ nationName }: { nationName: string }) {
             </Link>
           )
         })}
+      {isAdmin ? (
+          <a href="/admin" className={styles.link}>
+            <span className={styles.linkIcon}>{icons.politics}</span>
+            Admin Panel
+          </a>
+        ) : null}
       </nav>
 
       <div className={styles.footer}>

@@ -29,3 +29,13 @@ export async function sendChatMessageAction(scope: 'GLOBAL' | 'CONTINENT', messa
   }
   return { success: true }
 }
+
+export async function reportChatMessageAction(messageId: string, reason: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('report_chat_message', {
+    p_message_id: messageId,
+    p_reason: reason,
+  })
+  if (error) return { error: error.message }
+  return { success: true }
+}

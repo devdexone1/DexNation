@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendChatMessageAction } from '@/app/dashboard/chat-actions'
+import { createClient as createBrowserClient } from '@/lib/supabase/client'
 import type { ChatMessage } from '@/types/database'
+import MessageContextMenu from './MessageContextMenu'
 import styles from './chat-widget.module.css'
 
 function ChatIcon() {
@@ -14,7 +16,14 @@ function ChatIcon() {
   )
 }
 
-export default function ChatWidget({ myContinentId }: { myContinentId: string | null }) {
+export default function ChatWidget({
+  myContinentId,
+  adminInfo,
+}: {
+  myContinentId: string | null
+  adminInfo: { isAdmin: boolean; canMute: boolean; canBan: boolean; maxBanDays: number } | null
+}) {
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<'CONTINENT' | 'GLOBAL'>('GLOBAL')
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -113,12 +122,33 @@ export default function ChatWidget({ myContinentId }: { myContinentId: string | 
               <div className={styles.emptyState}>No messages yet — say hello.</div>
             ) : (
               messages.map((m) => (
-                <div className={styles.messageRow} key={m.id}>
-                  <span className={styles.messageSender}>{m.sender_nation_name}:</span>
-                  {m.message}
-                  <span className={styles.messageTime}>
-                    {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                <div className={styles.messageRowWrap} key={m.id}>
+                  <div className={styles.messageRow} style={{ flex: 1 }}>
+                    <span className={styles.messageSender}>{m.sender_nation_name}:</span>
+                    {m.message}
+                    <span className={styles.messageTime}>
+                      {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.moreBtn}
+                    onClick={() => setOpenMenuId(openMenuId === m.id ? null : m.id)}
+                  >
+                    ⋮
+                  </button>
+                  {openMenuId === m.id ? (
+                    <MessageContextMenu
+                      messageId={m.id}
+                      senderUserId={m.sender_user_id}
+                      senderNationId={m.sender_nation_id}
+                      isAdmin={adminInfo?.isAdmin ?? false}
+                      canMute={adminInfo?.canMute ?? false}
+                      canBan={adminInfo?.canBan ?? false}
+                      maxBanDays={adminInfo?.maxBanDays ?? 0}
+                      onClose={() => setOpenMenuId(null)}
+                    />
+                  ) : null}
                 </div>
               ))
             )}

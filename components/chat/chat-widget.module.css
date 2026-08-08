@@ -116,3 +116,63 @@
   color: var(--color-negative);
   padding: 0 10px 8px;
 }
+
+.messageRowWrap {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.moreBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink-faint);
+  font-size: 12px;
+  padding: 0 4px;
+  opacity: 0;
+}
+
+.messageRowWrap:hover .moreBtn {
+  opacity: 1;
+}
+
+.contextMenu {
+  position: absolute;
+  top: 18px;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  min-width: 150px;
+  overflow: hidden;
+}
+
+.contextItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.contextItem:hover {
+  background: var(--color-surface-sunken);
+}
+
+.contextItemDanger {
+  color: var(--color-negative);
+}
+
+.reportInput {
+  padding: 8px;
+  border-top: 1px solid var(--color-border);
+}

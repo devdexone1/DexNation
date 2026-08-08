@@ -22,9 +22,27 @@ export default async function DashboardLayout({ children }: { children: React.Re
     nation = data
   }
 
+  let adminInfo: { isAdmin: boolean; canMute: boolean; canBan: boolean; maxBanDays: number } | null = null
+  if (user) {
+    const { data: adminRow } = await supabase.from('admins').select('rank').eq('user_id', user.id).maybeSingle()
+    if (adminRow) {
+      const { data: perm } = await supabase
+        .from('admin_rank_permissions')
+        .select('can_mute, can_ban, max_ban_days')
+        .eq('rank', adminRow.rank)
+        .maybeSingle()
+      adminInfo = {
+        isAdmin: true,
+        canMute: perm?.can_mute ?? false,
+        canBan: perm?.can_ban ?? false,
+        maxBanDays: perm?.max_ban_days ?? 0,
+      }
+    }
+  }
+
   return (
     <div className={styles.shell}>
-      <Sidebar nationName={nation?.name ?? 'Unnamed Nation'} />
+      <Sidebar nationName={nation?.name ?? 'Unnamed Nation'} isAdmin={adminInfo?.isAdmin ?? false} />
       <div className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.topbarTitle}>{nation?.name ?? 'Dashboard'}</div>
@@ -45,7 +63,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
         <main className={styles.content}>{children}</main>
       </div>
-      <ChatWidget myContinentId={nation?.continent_id ?? null} />
+      <ChatWidget myContinentId={nation?.continent_id ?? null} adminInfo={adminInfo} />
     </div>
   )
 }
