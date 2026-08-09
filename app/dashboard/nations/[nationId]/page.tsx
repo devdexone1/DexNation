@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent, formatNationAge } from '@/lib/format'
 import FlagDisplay from '@/components/FlagDisplay'
 import DeclareWarFromProfile from './DeclareWarFromProfile'
+import NationDossier from '@/components/NationDossier'
+import type { Achievement, NationAchievement } from '@/types/database'
 import AllianceBadgeButton from '@/components/AllianceBadgeButton'
 import styles from './nation-profile.module.css'
 
@@ -25,7 +27,7 @@ export default async function NationProfilePage({
     )
   }
 
-  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, buildingsCountRes, techCountRes] = await Promise.all([
+  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, buildingsCountRes, techCountRes, creditRes, militaryRes, achievementsRes, unlockedRes] = await Promise.all([
     supabase.from('governments').select('ideology, tax_rate, political_stability').eq('nation_id', nationId).maybeSingle(),
     supabase.from('alliance_members').select('alliance_id, role').eq('nation_id', nationId).maybeSingle(),
     supabase
@@ -51,6 +53,10 @@ export default async function NationProfilePage({
       : Promise.resolve({ data: null }),
     supabase.from('nation_buildings').select('id', { count: 'exact', head: true }).eq('nation_id', nationId),
     supabase.from('nation_technologies').select('id', { count: 'exact', head: true }).eq('nation_id', nationId).eq('status', 'COMPLETED'),
+    supabase.from('nation_credit_scores').select('credit_score, credit_grade').eq('nation_id', nationId).maybeSingle(),
+    supabase.from('nation_military').select('amount, morale_status').eq('nation_id', nationId),
+    supabase.from('achievements').select('*'),
+    supabase.from('nation_achievements').select('*').eq('nation_id', nationId),
   ])
 
   const government = govRes.data
@@ -150,6 +156,30 @@ export default async function NationProfilePage({
           <div className={styles.highlightLabel}>Battles Won</div>
         </div>
       </div>
+
+      <NationDossier
+        data={{
+          name: nation.name,
+          leaderName: nation.leader_name,
+          ideology: government?.ideology ?? '—',
+          continentId: nation.continent_id,
+          createdAt: nation.created_at,
+          dailyGdp: nation.daily_gdp,
+          population: nation.population,
+          taxRate: government?.tax_rate ?? 0,
+          politicalStability: government?.political_stability ?? 0,
+          approvalRating: nation.approval_rating,
+          creditScore: creditRes.data?.credit_score ?? null,
+          creditGrade: creditRes.data?.credit_grade ?? null,
+          allianceLabel: allianceInfo ? `${allianceInfo.name} [${allianceInfo.tag}]` : null,
+          activeWarsCount: wars.length,
+          buildingCount: buildingsCountRes.count ?? 0,
+          militaryCount: (militaryRes.data ?? []).reduce((sum, u) => sum + u.amount, 0),
+          hasMoraleZero: (militaryRes.data ?? []).some((u) => u.morale_status === 'MORALE_ZERO'),
+        }}
+        achievements={achievementsRes.data ?? []}
+        unlockedAchievements={unlockedRes.data ?? []}
+      />
 
       {viewerNation && !isOwnProfile ? (
         <div className={styles.section}>

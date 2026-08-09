@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatNumber } from '@/lib/format'
 import type { Nation, Government, AllianceMember, Alliance, CreditStatus } from '@/types/database'
 import RenameNationForm from './RenameNationForm'
+import LeaderNameForm from './LeaderNameForm'
 import FlagUploadForm from './FlagUploadForm'
 import SignOutButton from './SignOutButton'
 import styles from './profile.module.css'
@@ -143,6 +144,10 @@ export default async function ProfilePage() {
           </div>
 
           {nation ? <RenameNationForm nationId={nation.id} currentName={nation.name} /> : null}
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--color-border)' }}>
+            <label className="field__label" style={{ marginBottom: 6, display: 'block' }}>Leader / President Name</label>
+            {nation ? <LeaderNameForm nationId={nation.id} currentLeaderName={nation.leader_name} /> : null}
+          </div>
         </div>
       </div>
 

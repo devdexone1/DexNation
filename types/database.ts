@@ -6,6 +6,7 @@ export interface Nation {
   id: string
   user_id: string
   name: string
+  leader_name: string | null
   continent_id: string
   cash_balance: number
   population: number
@@ -368,4 +369,19 @@ export interface AdminInfo {
   can_mute: boolean
   can_ban: boolean
   max_ban_days: number
+}
+
+export interface Achievement {
+  id: string
+  title: string
+  description: string
+  icon: string
+  category: string
+}
+
+export interface NationAchievement {
+  id: string
+  nation_id: string
+  achievement_id: string
+  unlocked_at: string
 }

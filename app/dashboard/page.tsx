@@ -5,7 +5,8 @@ import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import styles from './overview.module.css'
 import FlagDisplay from '@/components/FlagDisplay'
 import FlagStand from '@/components/FlagStand'
-import type { Government, Nation, NationStock, NationBuilding, BuildingType } from '@/types/database'
+import type { Government, Nation, NationStock, NationBuilding, BuildingType, Achievement, NationAchievement } from '@/types/database'
+import NationDossier from '@/components/NationDossier'
 import RealtimeRefresher from '@/components/RealtimeRefresher'
 
 interface OwnedBuildingRow extends NationBuilding {
@@ -22,6 +23,9 @@ export default async function OverviewPage() {
   let government: Government | null = null
   let stocks: NationStock[] = []
   let buildings: OwnedBuildingRow[] = []
+  let dossierData: import('@/components/NationDossier').NationDossierData | null = null
+  let achievements: Achievement[] = []
+  let unlockedAchievements: NationAchievement[] = []
 
   if (user) {
     const { data: nationData } = await supabase
@@ -48,6 +52,53 @@ export default async function OverviewPage() {
       government = govRes.data
       stocks = stocksRes.data ?? []
       buildings = (buildingsRes.data as OwnedBuildingRow[]) ?? []
+
+    const [govRes2, creditRes, allianceMembershipRes, warsCountRes, militaryRes, achievementsRes, unlockedRes] = await Promise.all([
+        supabase.from('governments').select('*').eq('nation_id', nation.id).maybeSingle(),
+        supabase.from('nation_credit_scores').select('credit_score, credit_grade').eq('nation_id', nation.id).maybeSingle(),
+        supabase.from('alliance_members').select('alliance_id, role').eq('nation_id', nation.id).maybeSingle(),
+        supabase.from('active_wars').select('id', { count: 'exact', head: true }).or(`attacker_id.eq.${nation.id},defender_id.eq.${nation.id}`).eq('war_status', 'ACTIVE'),
+        supabase.from('nation_military').select('amount, morale_status').eq('nation_id', nation.id),
+        supabase.from('achievements').select('*'),
+        supabase.from('nation_achievements').select('*').eq('nation_id', nation.id),
+      ])
+
+      let allianceLabel: string | null = null
+      if (allianceMembershipRes.data) {
+        const { data: allianceData } = await supabase
+          .from('alliances')
+          .select('name, tag')
+          .eq('id', allianceMembershipRes.data.alliance_id)
+          .maybeSingle()
+        if (allianceData) {
+          allianceLabel = `${allianceData.name} [${allianceData.tag}] · ${allianceMembershipRes.data.role}`
+        }
+      }
+
+      const militaryRows = militaryRes.data ?? []
+
+      dossierData = {
+        name: nation.name,
+        leaderName: nation.leader_name,
+        ideology: govRes2.data?.ideology ?? government?.ideology ?? '—',
+        continentId: nation.continent_id,
+        createdAt: nation.created_at,
+        dailyGdp: nation.daily_gdp,
+        population: nation.population,
+        taxRate: govRes2.data?.tax_rate ?? government?.tax_rate ?? 0,
+        politicalStability: govRes2.data?.political_stability ?? government?.political_stability ?? 0,
+        approvalRating: nation.approval_rating,
+        creditScore: creditRes.data?.credit_score ?? null,
+        creditGrade: creditRes.data?.credit_grade ?? null,
+        allianceLabel,
+        activeWarsCount: warsCountRes.count ?? 0,
+        buildingCount: buildings.length,
+        militaryCount: militaryRows.reduce((sum, u) => sum + u.amount, 0),
+        hasMoraleZero: militaryRows.some((u) => u.morale_status === 'MORALE_ZERO'),
+      }
+
+      achievements = achievementsRes.data ?? []
+      unlockedAchievements = unlockedRes.data ?? []
     }
   }
 
@@ -229,6 +280,12 @@ export default async function OverviewPage() {
             </div>
           )}
         </div>
+
+        {dossierData ? (
+        <div style={{ marginTop: 16 }}>
+          <NationDossier data={dossierData} achievements={achievements} unlockedAchievements={unlockedAchievements} />
+        </div>
+      ) : null}
 
         <div className={`${styles.panel} card`}>
           <h2 className={styles.panelTitle}>Alerts</h2>
