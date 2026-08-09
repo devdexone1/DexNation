@@ -14,7 +14,7 @@ interface NationResult {
 
 export default function NationSearch() {
   const [query, setQuery] = useState('')
-  const debouncedQuery = useDebounce(query, 2000)
+  const debouncedQuery = useDebounce(query, 1000)
   const [results, setResults] = useState<NationResult[]>([])
   const [searching, setSearching] = useState(false)
 

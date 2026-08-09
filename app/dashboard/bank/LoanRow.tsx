@@ -35,8 +35,8 @@ export default function LoanRow({ loan, nationId }: { loan: WorldBankLoan; natio
           {formatCash(loan.remaining_principal)} remaining
         </span>
         <span className={styles.loanMeta}>
-          Original: {formatCash(loan.initial_principal)} · {formatPercent(loan.daily_interest_rate * 100)} / tick ·{' '}
-          {loan.duration_ticks} tick term
+          Original: {formatCash(loan.initial_principal)} · {formatPercent(loan.daily_interest_rate * 100)} / day ·{' '}
+          {loan.duration_ticks}-day term
         </span>
         {error ? <span className={styles.error} style={{ marginBottom: 0 }}>{error}</span> : null}
       </div>

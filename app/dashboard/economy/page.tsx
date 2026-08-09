@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber } from '@/lib/format'
 import { BUILDING_CATEGORY_LABELS } from '@/types/database'
 import type { Nation, NationStock, NationBuilding, BuildingType } from '@/types/database'
+import ToolInfo from '@/components/ToolInfo'
 import BuildingCatalog from './BuildingCatalog'
 import styles from './economy.module.css'
 
@@ -110,7 +111,15 @@ export default async function EconomyPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Construct New Building</h2>
+        <h2 className={styles.sectionTitle}>
+          Construct New Building
+          <ToolInfo title="Building Production">
+            Each building consumes raw materials/electricity and produces goods
+            automatically once per Day. Efficiency drops if you run low on Maintenance
+            Kit (floor 25%) or electricity. Watch your warehouse — production pauses if
+            storage fills up.
+          </ToolInfo>
+        </h2>
 
         {Object.entries(BUILDING_CATEGORY_LABELS).map(([categoryKey, label]) => {
           const items = catalogByCategory[categoryKey]

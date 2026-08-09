@@ -76,6 +76,7 @@ const icons: Record<string, React.ReactNode> = {
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: 'dashboard', exact: true, ready: true },
+  { to: '/dashboard/guide', label: 'Guide', icon: 'research', ready: true },
   { to: '/dashboard/economy', label: 'Economy', icon: 'economy', ready: true },
   { to: '/dashboard/military', label: 'Military', icon: 'military', ready: true },
   { to: '/dashboard/politics', label: 'Politics', icon: 'politics', ready: true },

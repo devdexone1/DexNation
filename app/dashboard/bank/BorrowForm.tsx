@@ -86,9 +86,9 @@ export default function BorrowForm({
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
           >
-            <option value="7">7 ticks</option>
-            <option value="14">14 ticks</option>
-            <option value="28">28 ticks</option>
+            <option value="7">7 days</option>
+            <option value="14">14 days</option>
+            <option value="28">28 days</option>
           </select>
         </div>
       </div>

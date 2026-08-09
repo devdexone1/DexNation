@@ -95,7 +95,7 @@ export default function UnResolutions({
             <div className={`${styles.resolutionCard} card`} key={r.id} style={{ marginBottom: 10 }}>
               <div className={styles.resolutionHeader}>
                 <span className={styles.resolutionType}>{r.resolution_type.replace(/_/g, ' ')}</span>
-                <span className="badge badge--accent">ends tick #{r.end_tick}</span>
+                <span className="badge badge--accent">ends on Day #{r.end_tick}</span>
               </div>
               <div className={styles.voteBarWrap}>
                 <div className={styles.voteBarFor} style={{ width: `${pct}%` }} />

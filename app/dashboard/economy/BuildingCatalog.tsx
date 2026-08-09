@@ -52,7 +52,7 @@ export default function BuildingCatalog({
           >
             <div className={styles.catalogName}>{bt.name}</div>
             <div className={styles.catalogMeta}>
-              Build time: {bt.build_time_ticks} tick{bt.build_time_ticks === 1 ? '' : 's'}
+              Build time: {bt.build_time_ticks} day{bt.build_time_ticks === 1 ? '' : 's'}
               {isHighTech ? ' · Requires research (not unlocked yet)' : ''}
             </div>
 

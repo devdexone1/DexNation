@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ToolInfo from '@/components/ToolInfo'
 import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import styles from './overview.module.css'
@@ -134,7 +135,14 @@ export default async function OverviewPage() {
 
       <div className={styles.grid2}>
         <div className={`${styles.panel} card`}>
-          <h2 className={styles.panelTitle}>National Warehouse</h2>
+          <h2 className={styles.panelTitle}>
+            National Warehouse
+            <ToolInfo title="National Warehouse">
+              Shows how full your storage is for each resource. When a resource hits
+              100% capacity, the building producing it automatically pauses (no waste) and
+              resumes once stock drops below 95%.
+            </ToolInfo>
+          </h2>
           <p className={styles.panelSubtitle}>Current commodity stock vs. warehouse capacity.</p>
 
           {stocks.length === 0 ? (

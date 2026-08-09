@@ -32,7 +32,7 @@ export default function TickClock() {
     <div className={styles.tickClock}>
       <span className={styles.tickDot} />
       <div className={styles.tickText}>
-        <span className={styles.tickLabel}>Next Daily Tick</span>
+        <span className={styles.tickLabel}>Next Day</span>
         <span className={`${styles.tickValue} mono`}>
           {msLeft === null ? '--:--:--' : formatDuration(msLeft)}
         </span>

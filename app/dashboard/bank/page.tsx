@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import type { Nation, WorldBankLoan, CreditStatus } from '@/types/database'
+import ToolInfo from '@/components/ToolInfo'
 import BorrowForm from './BorrowForm'
 import LoanRow from './LoanRow'
 import styles from './bank.module.css'
@@ -63,7 +64,15 @@ export default async function BankPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Credit Status</h2>
+        <h2 className={styles.sectionTitle}>
+          Credit Status
+          <ToolInfo title="Credit Score">
+            Determines your borrowing cap and interest rate. Based on your payment
+            history, debt-to-GDP ratio, and Approval Rating. Missing payments 3 times in
+            a row triggers Default: your credit drops to Grade F and 20% of your stockpile
+            is seized.
+          </ToolInfo>
+        </h2>
         <div className={styles.scoreGrid}>
           <div className={`${styles.scoreCard} card`}>
             <span className={styles.scoreLabel}>Credit Score</span>
