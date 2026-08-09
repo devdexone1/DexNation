@@ -40,3 +40,8 @@ export function formatNationAge(createdAt: string) {
 
   return parts.join(', ') || 'Founded today'
 }
+
+export function formatNationId(countryNumber: number | null | undefined) {
+  if (countryNumber === null || countryNumber === undefined) return ''
+  return `#${countryNumber}`
+}

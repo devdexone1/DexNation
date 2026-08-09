@@ -1,0 +1,54 @@
+{
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "loading": "Memuat…",
+    "confirm": "Konfirmasi",
+    "submit": "Kirim",
+    "close": "Tutup",
+    "search": "Cari"
+  },
+  "sidebar": {
+    "dashboard": "Beranda",
+    "economy": "Ekonomi",
+    "military": "Militer",
+    "politics": "Politik",
+    "research": "Riset",
+    "worldBank": "Bank Dunia",
+    "market": "Pasar",
+    "leaderboard": "Papan Peringkat",
+    "statistics": "Statistik",
+    "inventory": "Inventaris",
+    "profile": "Profil",
+    "guide": "Panduan",
+    "adminPanel": "Panel Admin",
+    "signOut": "Keluar",
+    "nextDay": "Hari Berikutnya"
+  },
+  "dossier": {
+    "economicStatistics": "Statistik Ekonomi",
+    "compositeIndices": "Indeks Gabungan",
+    "geopolitics": "Geopolitik",
+    "nationalHonors": "Penghargaan Nasional",
+    "dailyGdp": "GDP Harian",
+    "population": "Populasi",
+    "gdpPerCapita": "GDP / Kapita",
+    "taxRate": "Tarif Pajak",
+    "politicalStability": "Stabilitas Politik",
+    "alliance": "Aliansi",
+    "noAlliance": "Tanpa Aliansi",
+    "securityStatus": "Status Keamanan",
+    "atPeace": "Damai",
+    "atWar": "Sedang Perang",
+    "creditGrade": "Peringkat Kredit",
+    "founded": "Didirikan",
+    "ago": "yang lalu",
+    "noLeaderSet": "Belum ada nama pemimpin",
+    "ledBy": "Dipimpin oleh"
+  },
+  "alerts": {
+    "nearCapacity": "hampir mencapai kapasitas gudang. Pertimbangkan membangun Warehouse Complex.",
+    "outOfMaintenanceKit": "Maintenance Kit kamu habis — pabrik pengolahan akan berjalan cuma 25% efisiensi begitu produksi dimulai.",
+    "noBuildingsYet": "Kamu belum punya gedung. Kunjungi Ekonomi buat bangun pabrik pertamamu."
+  }
+}

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TickClock from './TickClock'
+import { useLanguage } from '@/lib/i18n/LanguageProvider'
 import styles from './Sidebar.module.css'
 
 const icons: Record<string, React.ReactNode> = {
@@ -75,22 +76,31 @@ const icons: Record<string, React.ReactNode> = {
 }
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'dashboard', exact: true, ready: true },
-  { to: '/dashboard/guide', label: 'Guide', icon: 'research', ready: true },
-  { to: '/dashboard/economy', label: 'Economy', icon: 'economy', ready: true },
-  { to: '/dashboard/military', label: 'Military', icon: 'military', ready: true },
-  { to: '/dashboard/politics', label: 'Politics', icon: 'politics', ready: true },
-  { to: '/dashboard/research', label: 'Research', icon: 'research', ready: true },
-  { to: '/dashboard/bank', label: 'World Bank', icon: 'bank', ready: true },
-  { to: '/dashboard/market', label: 'Market', icon: 'market', ready: true },
-  { to: '/dashboard/leaderboard', label: 'Leaderboard', icon: 'profile', ready: true },
-  { to: '/dashboard/statistics', label: 'Statistics', icon: 'research', ready: true },
-  { to: '/dashboard/inventory', label: 'Inventory', icon: 'economy', ready: true },
-  { to: '/dashboard/profile', label: 'Profile', icon: 'profile', ready: true },
+  { to: '/dashboard', labelKey: 'sidebar.dashboard', icon: 'dashboard', exact: true, ready: true },
+  { to: '/dashboard/guide', labelKey: 'sidebar.guide', icon: 'research', ready: true },
+  { to: '/dashboard/economy', labelKey: 'sidebar.economy', icon: 'economy', ready: true },
+  { to: '/dashboard/military', labelKey: 'sidebar.military', icon: 'military', ready: true },
+  { to: '/dashboard/politics', labelKey: 'sidebar.politics', icon: 'politics', ready: true },
+  { to: '/dashboard/research', labelKey: 'sidebar.research', icon: 'research', ready: true },
+  { to: '/dashboard/bank', labelKey: 'sidebar.worldBank', icon: 'bank', ready: true },
+  { to: '/dashboard/market', labelKey: 'sidebar.market', icon: 'market', ready: true },
+  { to: '/dashboard/leaderboard', labelKey: 'sidebar.leaderboard', icon: 'profile', ready: true },
+  { to: '/dashboard/statistics', labelKey: 'sidebar.statistics', icon: 'research', ready: true },
+  { to: '/dashboard/inventory', labelKey: 'sidebar.inventory', icon: 'economy', ready: true },
+  { to: '/dashboard/profile', labelKey: 'sidebar.profile', icon: 'profile', ready: true },
 ]
 
-export default function Sidebar({ nationName, isAdmin }: { nationName: string; isAdmin?: boolean }) {
+export default function Sidebar({
+  nationName,
+  countryNumber,
+  isAdmin,
+}: {
+  nationName: string
+  countryNumber?: number
+  isAdmin?: boolean
+}) {
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   async function handleSignOut() {
     const supabase = createClient()
@@ -106,7 +116,9 @@ export default function Sidebar({ nationName, isAdmin }: { nationName: string; i
             Dex<span>Nation</span>
           </span>
         </div>
-        <div className={styles.nationName}>{nationName}</div>
+        <div className={styles.nationName}>
+          {nationName} {countryNumber ? <span className="mono" style={{ color: 'var(--color-ink-faint)', fontSize: 11 }}>#{countryNumber}</span> : null}
+        </div>
       </div>
 
       <nav className={styles.nav}>
@@ -119,7 +131,7 @@ export default function Sidebar({ nationName, isAdmin }: { nationName: string; i
               className={`${styles.link}${isActive ? ` ${styles.linkActive}` : ''}`}
             >
               <span className={styles.linkIcon}>{icons[item.icon]}</span>
-              {item.label}
+              {t(item.labelKey)}
               {!item.ready && <span className={styles.linkSoon}>SOON</span>}
             </Link>
           )
@@ -136,7 +148,7 @@ export default function Sidebar({ nationName, isAdmin }: { nationName: string; i
         <TickClock />
         <button type="button" className={styles.signOut} onClick={handleSignOut}>
           <span className={styles.linkIcon}>{icons.signout}</span>
-          Sign out
+          {t('sidebar.signOut')}
         </button>
       </div>
     </aside>

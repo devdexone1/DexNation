@@ -3,10 +3,11 @@ import ToolInfo from '@/components/ToolInfo'
 import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent } from '@/lib/format'
 import styles from './overview.module.css'
+import { getServerTranslator } from '@/lib/i18n/getServerLocale'
 import FlagDisplay from '@/components/FlagDisplay'
 import FlagStand from '@/components/FlagStand'
 import type { Government, Nation, NationStock, NationBuilding, BuildingType, Achievement, NationAchievement } from '@/types/database'
-import NationDossier from '@/components/NationDossier'
+import NationDossier, { NationDossierData } from '@/components/NationDossier'
 import RealtimeRefresher from '@/components/RealtimeRefresher'
 
 interface OwnedBuildingRow extends NationBuilding {
@@ -14,6 +15,7 @@ interface OwnedBuildingRow extends NationBuilding {
 }
 
 export default async function OverviewPage() {
+  const t = await getServerTranslator()
   const supabase = await createClient()
   const {
     data: { user },
@@ -77,8 +79,9 @@ export default async function OverviewPage() {
 
       const militaryRows = militaryRes.data ?? []
 
-      dossierData = {
+      let dossierData: NationDossierData = {
         name: nation.name,
+        countryNumber: nation.country_number,
         leaderName: nation.leader_name,
         ideology: govRes2.data?.ideology ?? government?.ideology ?? '—',
         continentId: nation.continent_id,

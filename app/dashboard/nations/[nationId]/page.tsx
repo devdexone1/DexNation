@@ -160,6 +160,7 @@ export default async function NationProfilePage({
       <NationDossier
         data={{
           name: nation.name,
+          countryNumber: nation.country_number,
           leaderName: nation.leader_name,
           ideology: government?.ideology ?? '—',
           continentId: nation.continent_id,

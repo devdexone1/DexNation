@@ -5,6 +5,7 @@ import type { Achievement, NationAchievement } from '@/types/database'
 
 export interface NationDossierData {
   name: string
+  countryNumber: number
   leaderName: string | null
   ideology: string
   continentId: string
@@ -51,7 +52,9 @@ export default function NationDossier({
       <div className={styles.header}>
         <div>
           <div className={styles.leaderName}>{data.leaderName ? `Led by ${data.leaderName}` : 'No leader name set'}</div>
-          <div className={styles.nationName}>{data.name}</div>
+          <div className={styles.nationName}>
+            {data.name} <span className="mono" style={{ color: 'var(--color-ink-faint)', fontSize: 13 }}>#{data.countryNumber}</span>
+          </div>
           <div className={styles.age}>Founded {formatNationAge(data.createdAt)} ago</div>
         </div>
         <div className={styles.badges}>

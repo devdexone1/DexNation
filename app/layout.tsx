@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+// @ts-ignore: Next.js loads the global stylesheet at runtime.
 import './globals.css'
+import { getServerLocale } from '@/lib/i18n/getServerLocale'
+import { LanguageProvider } from '@/lib/i18n/LanguageProvider'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -25,13 +28,17 @@ export const metadata: Metadata = {
   description: 'Build your industry, control the market, and lead your nation.',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getServerLocale()
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <LanguageProvider initialLocale={locale}>{children}</LanguageProvider>
+      </body>
     </html>
   )
 }

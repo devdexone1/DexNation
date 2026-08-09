@@ -1,0 +1,54 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "close": "Close",
+    "search": "Search"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "economy": "Economy",
+    "military": "Military",
+    "politics": "Politics",
+    "research": "Research",
+    "worldBank": "World Bank",
+    "market": "Market",
+    "leaderboard": "Leaderboard",
+    "statistics": "Statistics",
+    "inventory": "Inventory",
+    "profile": "Profile",
+    "guide": "Guide",
+    "adminPanel": "Admin Panel",
+    "signOut": "Sign out",
+    "nextDay": "Next Day"
+  },
+  "dossier": {
+    "economicStatistics": "Economic Statistics",
+    "compositeIndices": "Composite Indices",
+    "geopolitics": "Geopolitics",
+    "nationalHonors": "National Honors",
+    "dailyGdp": "Daily GDP",
+    "population": "Population",
+    "gdpPerCapita": "GDP / Capita",
+    "taxRate": "Tax Rate",
+    "politicalStability": "Political Stability",
+    "alliance": "Alliance",
+    "noAlliance": "No Alliance",
+    "securityStatus": "Security Status",
+    "atPeace": "At Peace",
+    "atWar": "At War",
+    "creditGrade": "Credit Grade",
+    "founded": "Founded",
+    "ago": "ago",
+    "noLeaderSet": "No leader name set",
+    "ledBy": "Led by"
+  },
+  "alerts": {
+    "nearCapacity": "is near warehouse capacity. Consider building a Warehouse Complex.",
+    "outOfMaintenanceKit": "You are out of Maintenance Kit — processing factories will run at only 25% efficiency once production starts.",
+    "noBuildingsYet": "You have no buildings yet. Visit Economy to construct your first factory."
+  }
+}

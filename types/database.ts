@@ -7,6 +7,7 @@ export interface Nation {
   user_id: string
   name: string
   leader_name: string | null
+  country_number: number
   continent_id: string
   cash_balance: number
   population: number

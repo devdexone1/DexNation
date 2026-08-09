@@ -5,6 +5,7 @@ import FlagDisplay from '@/components/FlagDisplay'
 import { formatCash, formatPercent } from '@/lib/format'
 import styles from './dashboard.module.css'
 import type { Nation } from '@/types/database'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -42,10 +43,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className={styles.shell}>
-      <Sidebar nationName={nation?.name ?? 'Unnamed Nation'} isAdmin={adminInfo?.isAdmin ?? false} />
+      <Sidebar nationName={nation?.name ?? 'Unnamed Nation'} countryNumber={nation?.country_number} isAdmin={adminInfo?.isAdmin ?? false} />
       <div className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.topbarTitle}>{nation?.name ?? 'Dashboard'}</div>
+          <LanguageSwitcher />
           <div className={styles.topbarStats}>
             <div className={styles.topbarStat}>
               <span className={styles.topbarStatLabel}>Cash</span>
