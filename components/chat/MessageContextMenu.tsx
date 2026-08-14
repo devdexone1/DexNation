@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { reportChatMessageAction } from '@/app/dashboard/chat-actions'
+import { reportChatMessageAction, deleteChatMessageAction } from '@/app/dashboard/chat-actions'
 import { mutePlayerAction, banPlayerAction } from '@/app/admin/actions'
 import ConfirmButton from '@/components/ConfirmButton'
 import styles from './chat-widget.module.css'
@@ -15,6 +15,7 @@ export default function MessageContextMenu({
   canMute,
   canBan,
   maxBanDays,
+  currentUserId,
   onClose,
 }: {
   messageId: string
@@ -24,6 +25,7 @@ export default function MessageContextMenu({
   canMute: boolean
   canBan: boolean
   maxBanDays: number
+  currentUserId: string | null
   onClose: () => void
 }) {
   const [reporting, setReporting] = useState(false)
@@ -47,6 +49,12 @@ export default function MessageContextMenu({
     const result = await banPlayerAction(senderUserId, days, 'Banned from chat')
     setStatus(result.error ?? `Banned for ${days} day(s).`)
     setTimeout(onClose, 1200)
+  }
+
+  async function handleDelete() {
+    const result = await deleteChatMessageAction(messageId)
+    setStatus(result.error ?? 'Deleted.')
+    setTimeout(onClose, 800)
   }
 
   return (
@@ -78,6 +86,12 @@ export default function MessageContextMenu({
           />
         </div>
       )}
+
+      {currentUserId === senderUserId || (isAdmin && canMute) ? (
+        <div style={{ padding: '4px 8px' }}>
+          <ConfirmButton label="Delete Message" confirmLabel="Confirm Delete" onConfirm={handleDelete} className={`${styles.contextItem} ${styles.contextItemDanger}`} />
+        </div>
+      ) : null}
 
       {isAdmin && canMute ? (
         <div style={{ padding: '4px 8px' }}>

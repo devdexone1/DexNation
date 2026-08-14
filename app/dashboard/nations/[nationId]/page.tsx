@@ -27,7 +27,7 @@ export default async function NationProfilePage({
     )
   }
 
-  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, buildingsCountRes, techCountRes, creditRes, militaryRes, achievementsRes, unlockedRes] = await Promise.all([
+  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, achievementsRes, unlockedRes] = await Promise.all([
     supabase.from('governments').select('ideology, tax_rate, political_stability').eq('nation_id', nationId).maybeSingle(),
     supabase.from('alliance_members').select('alliance_id, role').eq('nation_id', nationId).maybeSingle(),
     supabase
@@ -51,13 +51,19 @@ export default async function NationProfilePage({
     user
       ? supabase.from('nations').select('id, name').eq('user_id', user.id).maybeSingle()
       : Promise.resolve({ data: null }),
-    supabase.from('nation_buildings').select('id', { count: 'exact', head: true }).eq('nation_id', nationId),
-    supabase.from('nation_technologies').select('id', { count: 'exact', head: true }).eq('nation_id', nationId).eq('status', 'COMPLETED'),
-    supabase.from('nation_credit_scores').select('credit_score, credit_grade').eq('nation_id', nationId).maybeSingle(),
-    supabase.from('nation_military').select('amount, morale_status').eq('nation_id', nationId),
     supabase.from('achievements').select('*'),
     supabase.from('nation_achievements').select('*').eq('nation_id', nationId),
   ])
+
+  const { data: summaryRows } = await supabase.rpc('get_nation_public_summary', { p_nation_id: nationId })
+  const summary = summaryRows?.[0] ?? {
+    credit_score: null,
+    credit_grade: null,
+    building_count: 0,
+    tech_completed_count: 0,
+    military_total_units: 0,
+    has_morale_zero: false,
+  }
 
   const government = govRes.data
   const membership = membershipRes.data
@@ -140,11 +146,11 @@ export default async function NationProfilePage({
 
       <div className={`${styles.highlightBar} card`}>
         <div className={styles.highlightItem}>
-          <div className={styles.highlightValue}>{formatNumber(buildingsCountRes.count ?? 0)}</div>
+          <div className={styles.highlightValue}>{formatNumber(summary.building_count)}</div>
           <div className={styles.highlightLabel}>Buildings</div>
         </div>
         <div className={styles.highlightItem}>
-          <div className={styles.highlightValue}>{formatNumber(techCountRes.count ?? 0)}</div>
+          <div className={styles.highlightValue}>{formatNumber(summary.tech_completed_count)}</div>
           <div className={styles.highlightLabel}>Tech Completed</div>
         </div>
         <div className={styles.highlightItem}>
@@ -170,13 +176,16 @@ export default async function NationProfilePage({
           taxRate: government?.tax_rate ?? 0,
           politicalStability: government?.political_stability ?? 0,
           approvalRating: nation.approval_rating,
-          creditScore: creditRes.data?.credit_score ?? null,
-          creditGrade: creditRes.data?.credit_grade ?? null,
+          creditScore: summary.credit_score,
+          creditGrade: summary.credit_grade,
           allianceLabel: allianceInfo ? `${allianceInfo.name} [${allianceInfo.tag}]` : null,
           activeWarsCount: wars.length,
-          buildingCount: buildingsCountRes.count ?? 0,
-          militaryCount: (militaryRes.data ?? []).reduce((sum, u) => sum + u.amount, 0),
-          hasMoraleZero: (militaryRes.data ?? []).some((u) => u.morale_status === 'MORALE_ZERO'),
+          buildingCount: summary.building_count,
+          militaryCount: summary.military_total_units,
+          hasMoraleZero: summary.has_morale_zero,
+          flagUrl: nation.flag_url,
+          flagFrame: nation.flag_frame,
+          cashBalance: nation.cash_balance ?? 0,
         }}
         achievements={achievementsRes.data ?? []}
         unlockedAchievements={unlockedRes.data ?? []}

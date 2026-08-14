@@ -1,11 +1,16 @@
+import Link from 'next/link'
 import { formatCash, formatNumber, formatPercent, formatNationAge } from '@/lib/format'
 import AchievementBadge from './AchievementBadge'
+import FlagDisplay from './FlagDisplay'
+import FlagStand from './FlagStand'
+import ToolInfo from './ToolInfo'
 import styles from './NationDossier.module.css'
 import type { Achievement, NationAchievement } from '@/types/database'
 
 export interface NationDossierData {
   name: string
   countryNumber: number
+  cashBalance: number
   leaderName: string | null
   ideology: string
   continentId: string
@@ -22,27 +27,26 @@ export interface NationDossierData {
   buildingCount: number
   militaryCount: number
   hasMoraleZero: boolean
+  flagUrl: string | null
+  flagFrame: string
 }
 
 export default function NationDossier({
   data,
   achievements,
   unlockedAchievements,
+  isOwnNation = false,
 }: {
   data: NationDossierData
   achievements: Achievement[]
   unlockedAchievements: NationAchievement[]
+  isOwnNation?: boolean
 }) {
   const gdpPerCapita = data.population > 0 ? data.dailyGdp / data.population : 0
 
-  const economicHealth = Math.round(
-    data.approvalRating * 0.5 + (data.creditScore ?? 0) * 0.5
-  )
+  const economicHealth = Math.round(data.approvalRating * 0.5 + (data.creditScore ?? 0) * 0.5)
   const infrastructureIndex = Math.min(100, data.buildingCount * 4)
-  const militaryReadiness = Math.min(
-    100,
-    Math.round(data.militaryCount * (data.hasMoraleZero ? 0.5 : 1))
-  )
+  const militaryReadiness = Math.min(100, Math.round(data.militaryCount * (data.hasMoraleZero ? 0.5 : 1)))
 
   const unlockedIds = new Set(unlockedAchievements.map((a) => a.achievement_id))
   const unlockedAtById = new Map(unlockedAchievements.map((a) => [a.achievement_id, a.unlocked_at]))
@@ -63,8 +67,31 @@ export default function NationDossier({
         </div>
       </div>
 
-      <div className={styles.sectionLabel}>Economic Statistics</div>
+      <div className={styles.flagRow}>
+        <FlagStand flagUrl={data.flagUrl} side="left" />
+        <FlagDisplay flagUrl={data.flagUrl} frame={data.flagFrame} size="hero" />
+        <FlagStand flagUrl={data.flagUrl} side="right" />
+        {isOwnNation ? (
+          <Link href="/dashboard/profile" className={styles.editFlagLink}>
+            Edit Flag &amp; Profile →
+          </Link>
+        ) : null}
+      </div>
+
+      <div className={styles.sectionLabel}>
+        Economic Statistics
+        <ToolInfo title="What these numbers mean">
+          <strong>Cash Balance</strong>: spendable money right now.<br />
+          <strong>Daily GDP</strong>: total value your economy produced today (taxed daily).<br />
+          <strong>Population</strong>: your citizens — affects RP, upkeep needs, and demand.<br />
+          <strong>GDP/Capita</strong>: Daily GDP ÷ Population, an efficiency measure.
+        </ToolInfo>
+      </div>
       <div className={styles.statGrid}>
+        <div className={styles.statItem}>
+          <div className={styles.statLabel}>Cash Balance</div>
+          <div className={`${styles.statValue} mono`}>{formatCash(data.cashBalance)}</div>
+        </div>
         <div className={styles.statItem}>
           <div className={styles.statLabel}>Daily GDP</div>
           <div className={`${styles.statValue} mono`}>{formatCash(data.dailyGdp)}</div>
@@ -123,12 +150,7 @@ export default function NationDossier({
         <div className={styles.sectionLabel}>National Honors</div>
         <div className={styles.achievementGrid}>
           {achievements.map((a) => (
-            <AchievementBadge
-              key={a.id}
-              achievement={a}
-              unlocked={unlockedIds.has(a.id)}
-              unlockedAt={unlockedAtById.get(a.id)}
-            />
+            <AchievementBadge key={a.id} achievement={a} unlocked={unlockedIds.has(a.id)} unlockedAt={unlockedAtById.get(a.id)} />
           ))}
         </div>
       </div>

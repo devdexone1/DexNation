@@ -165,10 +165,9 @@ export default async function PoliticsPage() {
         <div className={styles.eyebrow}>Politics</div>
         <h1 className={styles.title}>Government &amp; Diplomacy</h1>
         <p className={styles.subtitle}>
-          Reform your government&apos;s ideology or manage your alliance. Simplified for
-          now: founding an alliance skips the Daily GDP requirement (GDP isn&apos;t
-          computed yet without the Daily Tick engine), and ideology cooldown is shown for
-          reference only rather than strictly enforced.
+          Reform your government&apos;s ideology or manage your alliance. Founding an
+          alliance requires Daily GDP of at least $500,000 and costs $1,000,000 upfront.
+          Ideology cooldown is shown for reference but not strictly enforced yet.
         </p>
       </div>
 

@@ -88,6 +88,7 @@ const NAV_ITEMS = [
   { to: '/dashboard/statistics', labelKey: 'sidebar.statistics', icon: 'research', ready: true },
   { to: '/dashboard/inventory', labelKey: 'sidebar.inventory', icon: 'economy', ready: true },
   { to: '/dashboard/profile', labelKey: 'sidebar.profile', icon: 'profile', ready: true },
+  { to: '/dashboard/settings', labelKey: 'sidebar.settings', icon: 'profile', ready: true },
 ]
 
 export default function Sidebar({

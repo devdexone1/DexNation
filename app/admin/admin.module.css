@@ -97,3 +97,31 @@
   font-size: 11.5px;
   color: var(--color-negative);
 }
+
+.reportCard {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reportCard:last-child {
+  border-bottom: none;
+}
+
+.reportMessage {
+  font-size: 13px;
+  background: var(--color-surface-sunken);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  margin: 8px 0;
+}
+
+.reportMeta {
+  font-size: 11px;
+  color: var(--color-ink-faint);
+}
+
+.reportActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}

@@ -5,6 +5,7 @@ import SellOrderForm from './SellOrderForm'
 import OrderRow from './OrderRow'
 import RealtimeRefresher from '@/components/RealtimeRefresher'
 import styles from './market.module.css'
+import React from 'react'
 
 interface TransitRow {
   id: string
@@ -94,10 +95,10 @@ export default async function MarketPage() {
         <div className={styles.eyebrow}>Market</div>
         <h1 className={styles.title}>P2P Trading</h1>
         <p className={styles.subtitle}>
-          List resources for sale or buy from other nations. Simplified for now: sellers
-          set their own price freely (no dynamic price corridor yet), and a flat 15%
-          customs duty goes to the World Bank treasury on every trade — the split with
-          Alliance treasuries (File 04 §4) will come back once the Alliance system is built.
+          List resources for sale or buy from other nations. Sellers set their own price
+          freely. Trades between nations in the same alliance — or allied by an active FTA
+          treaty — get a reduced 5% customs duty split between both alliance treasuries;
+          everyone else pays the standard 15% to the World Bank.
         </p>
         <div className={styles.walletRow}>
           <span className={styles.walletLabel}>Cash</span>

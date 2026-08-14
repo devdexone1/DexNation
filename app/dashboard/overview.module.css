@@ -77,10 +77,38 @@
 }
 
 .stockRow {
-  display: grid;
-  grid-template-columns: 140px 1fr 90px;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 6px 14px;
+  padding: 4px 0;
+}
+
+.stockName {
+  flex: 0 0 130px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stockBar {
+  flex: 1 1 140px;
+  min-width: 90px;
+}
+
+.stockAmount {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .stockName {
+    flex-basis: 100%;
+  }
+  .stockAmount {
+    margin-left: 0;
+  }
 }
 
 .stockName {

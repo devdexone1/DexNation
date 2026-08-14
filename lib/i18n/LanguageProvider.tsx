@@ -23,7 +23,8 @@ export function LanguageProvider({
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next)
-    document.cookie = `${LOCALE_COOKIE_NAME}=${next}; path=/; max-age=31536000`
+    const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `${LOCALE_COOKIE_NAME}=${next}; path=/; max-age=31536000; SameSite=Lax${secureFlag}`
   }, [])
 
   const t = useCallback((key: string) => getNested(dictionaries[locale], key), [locale])

@@ -1,11 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatNumber } from '@/lib/format'
+import { getServerTranslator } from '@/lib/i18n/getServerLocale'
 import { RESEARCH_BRANCH_LABELS } from '@/types/database'
 import type { Nation, TechNode, NationTechnology, ResearchQueueItem } from '@/types/database'
 import TechNodeActions from './TechNodeActions'
 import styles from './research.module.css'
 
 export default async function ResearchPage() {
+  const t = await getServerTranslator()
   const supabase = await createClient()
   const {
     data: { user },
@@ -60,13 +62,9 @@ export default async function ResearchPage() {
   return (
     <div>
       <div className={styles.header}>
-        <div className={styles.eyebrow}>Research</div>
-        <h1 className={styles.title}>Technology Tree</h1>
-        <p className={styles.subtitle}>
-          Queue up technologies across 4 branches. Research Points accumulate automatically
-          every day at 00:00 UTC via the Daily Tick engine, and flow into whichever tech
-          sits at the top of your queue.
-        </p>
+        <div className={styles.eyebrow}>{t('research.eyebrow')}</div>
+        <h1 className={styles.title}>{t('research.title')}</h1>
+        <p className={styles.subtitle}>{t('research.subtitle')}</p>
         <div className={styles.rpRow}>
           <div className={styles.rpLabel}>Research Points Balance</div>
           <div className={`${styles.rpValue} mono`}>{formatNumber(nation?.research_points)}</div>

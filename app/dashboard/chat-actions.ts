@@ -39,3 +39,10 @@ export async function reportChatMessageAction(messageId: string, reason: string)
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function deleteChatMessageAction(messageId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('delete_chat_message', { p_message_id: messageId })
+  if (error) return { error: error.message }
+  return { success: true }
+}

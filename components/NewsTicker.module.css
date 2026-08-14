@@ -1,0 +1,47 @@
+.wrap {
+  overflow: hidden;
+  background: var(--color-ink);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  padding: 10px 0;
+  position: relative;
+}
+
+.label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 2;
+}
+
+.track {
+  display: flex;
+  white-space: nowrap;
+  animation: scrollLeft 30s linear infinite;
+  padding-left: 90px;
+}
+
+.item {
+  padding: 0 40px;
+  font-size: 12.5px;
+}
+
+@keyframes scrollLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

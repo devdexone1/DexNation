@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatNumber } from '@/lib/format'
-import PlayerModerationRow from './PlayerModerationRow'
+import AdminStatEditor from './AdminStatEditor'
+import ChatReportsPanel from './ChatReportsPanel'
 import styles from './admin.module.css'
+import PlayerModerationRow from './PlayerModerationRow'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -21,11 +23,12 @@ export default async function AdminPage() {
     .eq('rank', myAdmin?.rank ?? 1)
     .maybeSingle()
 
-  const [nationsCountRes, tradesCountRes, warsCountRes, allNationsRes] = await Promise.all([
+  const [nationsCountRes, tradesCountRes, warsCountRes, allNationsRes, reportsRes] = await Promise.all([
     supabase.from('nations').select('id', { count: 'exact', head: true }),
     supabase.from('p2p_trade_history').select('id', { count: 'exact', head: true }),
     supabase.from('active_wars').select('id', { count: 'exact', head: true }).eq('war_status', 'ACTIVE'),
     supabase.from('nations').select('id, user_id, name').order('created_at', { ascending: false }).limit(50),
+    supabase.rpc('get_open_chat_reports'),
   ])
 
   return (
@@ -68,6 +71,22 @@ export default async function AdminPage() {
             />
           ))}
         </div>
+      </div>
+
+      {perm?.can_edit_stats ? (
+        <div className={styles.section}>
+          <h2 className={styles.sectionTitle}>Edit Nation Statistics (Developer/Founder only)</h2>
+          <AdminStatEditor />
+        </div>
+      ) : null}
+
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Chat Reports ({reportsRes.data?.length ?? 0} open)</h2>
+        <ChatReportsPanel
+          reports={reportsRes.data ?? []}
+          canMute={perm?.can_mute ?? false}
+          canBan={perm?.can_ban ?? false}
+        />
       </div>
     </div>
   )

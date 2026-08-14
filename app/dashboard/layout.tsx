@@ -47,7 +47,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.topbarTitle}>{nation?.name ?? 'Dashboard'}</div>
-          <LanguageSwitcher />
           <div className={styles.topbarStats}>
             <div className={styles.topbarStat}>
               <span className={styles.topbarStatLabel}>Cash</span>
@@ -65,7 +64,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
         <main className={styles.content}>{children}</main>
       </div>
-      <ChatWidget myContinentId={nation?.continent_id ?? null} adminInfo={adminInfo} />
+      <ChatWidget myContinentId={nation?.continent_id ?? null} adminInfo={adminInfo} currentUserId={user?.id ?? null} />
     </div>
   )
 }

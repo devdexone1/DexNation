@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber } from '@/lib/format'
+import OwnedBuildingsList from './OwnedBuildingsList'
+import { getServerTranslator } from '@/lib/i18n/getServerLocale'
 import { BUILDING_CATEGORY_LABELS } from '@/types/database'
 import type { Nation, NationStock, NationBuilding, BuildingType } from '@/types/database'
 import ToolInfo from '@/components/ToolInfo'
@@ -11,6 +13,7 @@ interface OwnedBuildingRow extends NationBuilding {
 }
 
 export default async function EconomyPage() {
+  const t = await getServerTranslator()
   const supabase = await createClient()
   const {
     data: { user },
@@ -59,13 +62,9 @@ export default async function EconomyPage() {
   return (
     <div>
       <div className={styles.header}>
-        <div className={styles.eyebrow}>Economy</div>
-        <h1 className={styles.title}>Industry &amp; Production</h1>
-        <p className={styles.subtitle}>
-          Manage your factories and construct new buildings. Production runs automatically
-          every day at 00:00 UTC via the Daily Tick engine — check back after each tick to
-          see your stockpiles grow.
-        </p>
+        <div className={styles.eyebrow}>{t('economy.eyebrow')}</div>
+        <h1 className={styles.title}>{t('economy.title')}</h1>
+        <p className={styles.subtitle}>{t('economy.subtitle')}</p>
         <div className={styles.walletRow}>
           <div className={styles.walletItem}>
             <span className={styles.walletLabel}>Cash</span>
@@ -80,34 +79,21 @@ export default async function EconomyPage() {
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Your Buildings ({ownedBuildings.length})</h2>
-        {ownedBuildings.length === 0 ? (
-          <div className={styles.emptyState}>
-            You don&apos;t own any buildings yet — construct your first one below.
-          </div>
-        ) : (
-          <div className={styles.ownedGrid}>
-            {ownedBuildings.map((b) => (
-              <div key={b.id} className={`${styles.ownedCard} card`}>
-                <span className={styles.ownedName}>{b.building_types?.name ?? b.building_type_id}</span>
-                <span className={styles.ownedCategory}>
-                  {b.building_types?.category ? BUILDING_CATEGORY_LABELS[b.building_types.category] : ''}
-                </span>
-                <span
-                  className={`badge ${
-                    b.status === 'ACTIVE'
-                      ? 'badge--positive'
-                      : b.status === 'STORAGE_FULL'
-                        ? 'badge--accent'
-                        : 'badge--neutral'
-                  }`}
-                  style={{ width: 'fit-content' }}
-                >
-                  {b.status === 'STORAGE_FULL' ? 'WAREHOUSE FULL' : b.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className={`${styles.panel} card`}>
+          <OwnedBuildingsList
+            grouped={Object.values(
+              ownedBuildings.reduce<Record<string, { buildingType: BuildingType; count: number }>>((acc, b) => {
+                const bt = catalog.find((c) => c.id === b.building_type_id)
+                if (!bt) return acc
+                if (!acc[b.building_type_id]) {
+                  acc[b.building_type_id] = { buildingType: bt, count: 0 }
+                }
+                acc[b.building_type_id].count += 1
+                return acc
+              }, {})
+            )}
+          />
+        </div>
       </div>
 
       <div className={styles.section}>

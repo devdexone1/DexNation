@@ -51,3 +51,10 @@ export async function editNationStatAction(
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function resolveChatReportAction(reportId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { error } = await supabase.rpc('resolve_chat_report', { p_report_id: reportId })
+  if (error) return { error: error.message }
+  return { success: true }
+}

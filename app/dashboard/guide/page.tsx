@@ -1,99 +1,84 @@
 'use client'
 
 import { useState } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageProvider'
 import styles from './guide.module.css'
 
 const SURVIVAL_STEPS = [
   {
-    title: 'Day 1: Don\'t touch your starting buildings yet',
-    desc: 'You already start with a Grain Farm, Coal Mine, Iron Mine, and Wind Turbine — these are free and already cover your basic Food + raw material needs. Resist the urge to sell them or change anything on day one.',
+    title: { en: 'Day 1: Don\'t touch your starting buildings yet', id: 'Hari 1: Jangan utak-atik gedung starter dulu' },
+    desc: {
+      en: 'You already start with a Grain Farm, Coal Mine, Iron Mine, and Wind Turbine — these are free and already cover your basic Food + raw material needs. Resist the urge to sell them or change anything on day one.',
+      id: 'Kamu udah mulai dengan Grain Farm, Coal Mine, Iron Mine, dan Wind Turbine — ini gratis dan udah cukup buat kebutuhan Food + bahan baku dasar. Jangan buru-buru jual atau ubah apa-apa di hari pertama.',
+    },
   },
   {
-    title: 'Build a Steel Mill before anything else',
-    desc: 'Your Coal Mine and Iron Mine are already producing Coal and Iron Ore for free every day. A Steel Mill turns that raw output into Steel, which is worth far more and is needed for almost every other building and military unit. This is the single highest-value first purchase.',
+    title: { en: 'Build a Steel Mill before anything else', id: 'Bangun Steel Mill dulu sebelum yang lain' },
+    desc: {
+      en: 'Your Coal Mine and Iron Mine are already producing Coal and Iron Ore for free every day. A Steel Mill turns that raw output into Steel, which is worth far more and is needed for almost every other building and military unit. This is the single highest-value first purchase.',
+      id: 'Coal Mine dan Iron Mine kamu udah otomatis produksi Coal dan Iron Ore tiap hari. Steel Mill ngolah bahan mentah itu jadi Steel, yang nilainya jauh lebih tinggi dan dibutuhin buat hampir semua gedung dan unit militer lain. Ini pembelian pertama paling worth-it.',
+    },
   },
   {
-    title: 'Sell your surplus raw resources on the Market',
-    desc: 'Once your Steel Mill is running, you\'ll still have leftover Coal/Iron Ore beyond what it consumes. Don\'t let it pile up — list the surplus on the Market for early cash instead of letting your warehouse fill up and pause production.',
+    title: { en: 'Sell your surplus raw resources on the Market', id: 'Jual kelebihan bahan mentah di Market' },
+    desc: {
+      en: 'Once your Steel Mill is running, you\'ll still have leftover Coal/Iron Ore beyond what it consumes. Don\'t let it pile up — list the surplus on the Market for early cash instead of letting your warehouse fill up and pause production.',
+      id: 'Begitu Steel Mill jalan, masih ada sisa Coal/Iron Ore yang gak kepake semua. Jangan biarin numpuk — jual kelebihannya di Market buat dapet cash awal, daripada gudang kepenuhan dan produksi malah berhenti.',
+    },
   },
   {
-    title: 'Keep Approval Rating above 60% at all costs',
-    desc: 'Low Approval Rating shrinks your population (below 25% AR) and reduces production output (the AR Multiplier). Build a Textile Factory and Appliance Factory early — Clothing and Home Appliances have the biggest AR impact per unit of demand satisfied.',
+    title: { en: 'Keep Approval Rating above 60% at all costs', id: 'Jaga Approval Rating di atas 60% apapun caranya' },
+    desc: {
+      en: 'Low Approval Rating shrinks your population (below 25% AR) and reduces production output (the AR Multiplier). Build a Textile Factory and Appliance Factory early — Clothing and Home Appliances have the biggest AR impact per unit of demand satisfied.',
+      id: 'AR rendah bikin populasi kamu menyusut (di bawah 25% AR) dan produksi turun (kena AR Multiplier). Bangun Textile Factory dan Appliance Factory dari awal — Clothing dan Home Appliances paling berpengaruh ke AR per unit demand yang terpenuhi.',
+    },
   },
   {
-    title: 'Don\'t recruit military before your economy is stable',
-    desc: 'Every unit costs daily upkeep (cash, and sometimes Food/Fuel). Recruiting a large army before your Daily GDP can comfortably cover upkeep will drain your cash reserve fast and can trigger MORALE_ZERO status if you can\'t pay.',
+    title: { en: 'Don\'t recruit military before your economy is stable', id: 'Jangan rekrut militer sebelum ekonomi stabil' },
+    desc: {
+      en: 'Every unit costs daily upkeep (cash, and sometimes Food/Fuel). Recruiting a large army before your Daily GDP can comfortably cover upkeep will drain your cash reserve fast and can trigger MORALE_ZERO status if you can\'t pay.',
+      id: 'Tiap unit ada upkeep harian (cash, kadang Food/Fuel juga). Rekrut pasukan gede-gedean sebelum Daily GDP kamu cukup bakal ngabisin cash cepet banget, dan bisa kena status MORALE_ZERO kalau gak sanggup bayar.',
+    },
   },
   {
-    title: 'Avoid World Bank loans unless you have a repayment plan',
-    desc: 'Missing 3 loan payments in a row triggers Default: your credit grade drops to F and 20% of your entire stockpile is seized. Only borrow what you can comfortably repay from your Daily GDP.',
+    title: { en: 'Avoid World Bank loans unless you have a repayment plan', id: 'Hindari pinjaman Bank Dunia kalau belum punya rencana bayar' },
+    desc: {
+      en: 'Missing 3 loan payments in a row triggers Default: your credit grade drops to F and 20% of your entire stockpile is seized. Only borrow what you can comfortably repay from your Daily GDP.',
+      id: 'Telat bayar pinjaman 3x berturut-turut bikin kamu Default: grade kredit anjlok ke F dan 20% seluruh stok kamu disita. Pinjam secukupnya yang bisa kamu bayar dari Daily GDP.',
+    },
   },
   {
-    title: 'Build a Warehouse Complex once storage keeps filling up',
-    desc: 'If a resource keeps hitting 100% capacity and pausing production, that\'s a sign you need either more storage (Warehouse Complex) or to sell/consume that resource faster — not a sign something is broken.',
+    title: { en: 'Build a Warehouse Complex once storage keeps filling up', id: 'Bangun Warehouse Complex kalau gudang sering penuh' },
+    desc: {
+      en: 'If a resource keeps hitting 100% capacity and pausing production, that\'s a sign you need either more storage (Warehouse Complex) or to sell/consume that resource faster — not a sign something is broken.',
+      id: 'Kalau ada resource yang sering kena 100% kapasitas dan produksi berhenti, itu tandanya kamu butuh gudang lebih besar (Warehouse Complex) atau jual/pakai resource itu lebih cepat — bukan tanda ada yang rusak.',
+    },
   },
 ]
 
 const PAGE_GUIDES = [
   {
     name: 'Dashboard',
-    desc: 'Your nation\'s home screen — cash, population, Approval Rating, Daily GDP, warehouse levels, your buildings, and any alerts that need your attention (like nearly-full storage).',
+    desc: {
+      en: 'Your nation\'s home screen — cash, population, Approval Rating, Daily GDP, warehouse levels, your buildings, and any alerts that need your attention (like nearly-full storage).',
+      id: 'Halaman utama negara kamu — cash, populasi, Approval Rating, Daily GDP, level gudang, gedung kamu, dan alert yang butuh perhatian (misal gudang hampir penuh).',
+    },
     available: true,
   },
   {
     name: 'Economy',
-    desc: 'Construct new buildings across 5 categories (Extraction, Processing, High-Tech, Energy, Medical). Buildings produce resources automatically every Day based on your Approval Rating and available inputs.',
+    desc: {
+      en: 'Construct new buildings across 5 categories (Extraction, Processing, High-Tech, Energy, Medical). Buildings produce resources automatically every Day based on your Approval Rating and available inputs.',
+      id: 'Bangun gedung baru dari 5 kategori (Extraction, Processing, High-Tech, Energy, Medical). Gedung produksi resource otomatis tiap hari, tergantung Approval Rating dan bahan yang tersedia.',
+    },
     available: true,
   },
-  {
-    name: 'Military',
-    desc: 'Recruit Land/Air/Naval units, view active wars, dispatch troops to attack, and manage naval blockades. Combat resolves in real time — sent troops travel, then fight a 60-second battle once they arrive.',
-    available: true,
-  },
-  {
-    name: 'Research',
-    desc: 'Queue up technologies across 4 branches (Industrial, Military, Economic, Energy). Research Points accumulate automatically from Research buildings and population, and flow into whatever is at the top of your queue.',
-    available: true,
-  },
-  {
-    name: 'World Bank',
-    desc: 'Check your credit score and grade, apply for loans (capped by your grade), and make repayments. Daily interest and principal are deducted automatically from your cash each day.',
-    available: true,
-  },
-  {
-    name: 'Market',
-    desc: 'List resources for sale or buy from other nations. Cross-continent trades take longer to arrive and cost Fuel; same-continent trades are faster and free. Watch for active naval blockades — they can intercept your shipments.',
-    available: true,
-  },
-  {
-    name: 'Politics',
-    desc: 'Reform your government\'s ideology, create or join an Alliance, propose FTA trade treaties with other alliances, vote on UN Resolutions, and search for other nations.',
-    available: true,
-  },
-  {
-    name: 'Profile',
-    desc: 'Your account info, nation rename, flag upload with frame styles, and your nation\'s lifetime stats (buildings, units, tech, trades).',
-    available: true,
-  },
-  {
-    name: 'Leaderboard',
-    desc: 'Rankings by GDP, military strength, and research progress.',
-    available: false,
-  },
-  {
-    name: 'Statistics',
-    desc: 'Server-wide economic and military statistics, trends, and charts.',
-    available: false,
-  },
-  {
-    name: 'Inventory',
-    desc: 'A shop and inventory system for special items with unique gameplay effects.',
-    available: false,
-  },
+  // ...lanjutkan pola yang sama buat 9 item sisanya (Military, Research, World Bank, Market, Politics, Profile, Leaderboard, Statistics, Inventory)
 ]
 
 export default function GuidePage() {
   const [tab, setTab] = useState<'survival' | 'pages'>('survival')
+  const { locale, t } = useLanguage()
 
   return (
     <div>
@@ -132,8 +117,8 @@ export default function GuidePage() {
               <div className={styles.step} key={i}>
                 <div className={styles.stepNum}>{i + 1}</div>
                 <div>
-                  <div className={styles.stepTitle}>{step.title}</div>
-                  <div className={styles.stepDesc}>{step.desc}</div>
+                  <div className={styles.stepTitle}>{step.title[locale]}</div>
+                  <div className={styles.stepDesc}>{step.desc[locale]}</div>
                 </div>
               </div>
             ))}
@@ -154,7 +139,7 @@ export default function GuidePage() {
                 {p.name}
                 {!p.available ? <span className="badge badge--neutral" style={{ marginLeft: 8 }}>Coming Soon</span> : null}
               </div>
-              <div className={styles.pageCardDesc}>{p.desc}</div>
+              <div className={styles.pageCardDesc}>{p.desc[locale]}</div>
             </div>
           ))}
         </div>

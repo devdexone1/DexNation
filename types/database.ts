@@ -386,3 +386,27 @@ export interface NationAchievement {
   achievement_id: string
   unlocked_at: string
 }
+
+export interface OpenChatReport {
+  report_id: string
+  reason: string | null
+  created_at: string
+  reporter_user_id: string
+  reporter_nation_name: string | null
+  message_id: string
+  message_text: string
+  sender_user_id: string
+  sender_nation_name: string
+}
+
+export interface MilitaryUpkeepDebt {
+  id: string
+  nation_id: string
+  unpaid_tick: number
+  unpaid_cash: number
+  unpaid_food: number
+  unpaid_fuel: number
+  penalty_fee_cash: number
+  status: 'UNPAID' | 'CLEARED'
+  created_at: string
+}

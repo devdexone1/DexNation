@@ -165,3 +165,26 @@ export async function recallNavalBlockadeAction(nationId: string, warId: string)
   await logAudit(user.id, nationId, ip, 'ACTION_SUCCESS', { action: 'recall_naval_blockade' })
   return { success: true }
 }
+
+export async function payUpkeepDebtAction(nationId: string, debtId: string): Promise<ActionResult> {
+  const supabase = await createClient()
+  const ip = await getClientIp()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Session not found. Please sign in again.' }
+
+  const { error } = await supabase.rpc('pay_upkeep_debt', {
+    p_nation_id: nationId,
+    p_debt_id: debtId,
+  })
+
+  if (error) {
+    await logAudit(user.id, nationId, ip, 'ACTION_FAILED', { action: 'pay_upkeep_debt', error: error.message })
+    return { error: error.message }
+  }
+
+  await logAudit(user.id, nationId, ip, 'ACTION_SUCCESS', { action: 'pay_upkeep_debt', debtId })
+  return { success: true }
+}

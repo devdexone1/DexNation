@@ -56,10 +56,11 @@ export default async function BankPage() {
         <div className={styles.eyebrow}>World Bank</div>
         <h1 className={styles.title}>Credit &amp; Loans</h1>
         <p className={styles.subtitle}>
-          Borrow against your credit grade and repay manually. Simplified for now: the
-          borrowing cap and debt-ratio score use your Cash Balance instead of Daily GDP
-          (Daily GDP is always $0 until the Daily Tick engine exists), and repayments are
-          made manually instead of auto-deducted every tick.
+          Borrow against your credit grade. Your borrowing cap and credit score are based
+          on your real Daily GDP, which grows as your factories produce goods. Loan
+          repayments (principal + interest) are deducted automatically from your cash
+          every day — you can also make extra manual payments any time to pay down debt
+          faster.
         </p>
       </div>
 

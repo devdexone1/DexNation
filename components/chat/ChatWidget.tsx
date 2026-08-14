@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendChatMessageAction } from '@/app/dashboard/chat-actions'
 import { createClient as createBrowserClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/lib/i18n/LanguageProvider'
 import type { ChatMessage } from '@/types/database'
 import MessageContextMenu from './MessageContextMenu'
 import styles from './chat-widget.module.css'
@@ -19,9 +20,11 @@ function ChatIcon() {
 export default function ChatWidget({
   myContinentId,
   adminInfo,
+  currentUserId,
 }: {
   myContinentId: string | null
   adminInfo: { isAdmin: boolean; canMute: boolean; canBan: boolean; maxBanDays: number } | null
+  currentUserId: string | null
 }) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -76,6 +79,13 @@ export default function ChatWidget({
           if (msg.scope !== tab) return
           if (tab === 'CONTINENT' && msg.continent_id !== myContinentId) return
           setMessages((prev) => [...prev, msg])
+        }
+      )
+      .on(
+        'postgres_changes' as never,
+        { event: 'DELETE', schema: 'public', table: 'chat_messages' } as never,
+        (payload: { old: { id: string } }) => {
+          setMessages((prev) => prev.filter((m) => m.id !== payload.old.id))
         }
       )
       .subscribe()
@@ -166,6 +176,7 @@ export default function ChatWidget({
                       canMute={adminInfo?.canMute ?? false}
                       canBan={adminInfo?.canBan ?? false}
                       maxBanDays={adminInfo?.maxBanDays ?? 0}
+                      currentUserId={currentUserId}
                       onClose={() => setOpenMenuId(null)}
                     />
                   ) : null}
