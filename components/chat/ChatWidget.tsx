@@ -69,21 +69,25 @@ export default function ChatWidget({
     loadMessages()
 
     const supabase = createClient()
+
+    // FIX (BUG-005): filter di level subscription (server-side, lewat Postgres
+    // logical replication filter) — sebelumnya SEMUA insert chat_messages
+    // (benua manapun) terkirim ke SEMUA klien, cuma disaring di JavaScript.
+    const realtimeFilter =
+      tab === 'GLOBAL' ? 'scope=eq.GLOBAL' : `continent_id=eq.${myContinentId}`
+
     const channel = supabase
       .channel(`chat-${tab}-${myContinentId ?? 'global'}`)
       .on(
         'postgres_changes' as never,
-        { event: 'INSERT', schema: 'public', table: 'chat_messages' } as never,
+        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: realtimeFilter } as never,
         (payload: { new: ChatMessage }) => {
-          const msg = payload.new
-          if (msg.scope !== tab) return
-          if (tab === 'CONTINENT' && msg.continent_id !== myContinentId) return
-          setMessages((prev) => [...prev, msg])
+          setMessages((prev) => [...prev, payload.new])
         }
       )
       .on(
         'postgres_changes' as never,
-        { event: 'DELETE', schema: 'public', table: 'chat_messages' } as never,
+        { event: 'DELETE', schema: 'public', table: 'chat_messages', filter: realtimeFilter } as never,
         (payload: { old: { id: string } }) => {
           setMessages((prev) => prev.filter((m) => m.id !== payload.old.id))
         }

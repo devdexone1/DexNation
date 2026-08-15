@@ -1,17 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export interface RealtimeWatch {
   table: string
-  filter?: string // e.g. "nation_id=eq.<uuid>"
+  filter?: string
 }
 
-// Invisible component: subscribes to Postgres changes on the given tables and
-// calls router.refresh() whenever something relevant changes — including
-// changes made by OTHER players, not just the current user's own actions.
 export default function RealtimeRefresher({
   watches,
   channelName,
@@ -20,17 +17,28 @@ export default function RealtimeRefresher({
   channelName: string
 }) {
   const router = useRouter()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
     let channel = supabase.channel(channelName)
+
+    function scheduleRefresh() {
+      // FIX (BUG-010): collapse bursts of near-simultaneous changes (misal
+      // belasan resource berubah bersamaan pas Daily Tick) jadi 1 refresh,
+      // bukan router.refresh() berkali-kali beruntun.
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => {
+        router.refresh()
+      }, 800)
+    }
 
     for (const w of watches) {
       channel = channel.on(
         'postgres_changes' as never,
         { event: '*', schema: 'public', table: w.table, filter: w.filter } as never,
         () => {
-          router.refresh()
+          scheduleRefresh()
         }
       )
     }
@@ -38,6 +46,7 @@ export default function RealtimeRefresher({
     channel.subscribe()
 
     return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
       supabase.removeChannel(channel)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

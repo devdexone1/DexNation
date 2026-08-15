@@ -11,5 +11,15 @@ export function getNested(obj: unknown, path: string): string {
     }
     return undefined
   }, obj)
-  return typeof result === 'string' ? result : path
+
+  if (typeof result === 'string') return result
+
+  // FIX (BUG-007): sebelumnya key yang typo/gak ketemu diam-diam nampilin
+  // string key mentah ke pemain tanpa indikasi apa pun. Sekarang di mode
+  // development, muncul warning di Console — biar typo ketauan pas develop,
+  // bukan pas udah kepublish.
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(`[i18n] Missing translation key: "${path}"`)
+  }
+  return path
 }
