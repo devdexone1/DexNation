@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { renameNationAction } from './actions'
 import styles from './profile.module.css'
 
 export default function RenameNationForm({
@@ -36,28 +36,13 @@ export default function RenameNationForm({
     }
 
     startTransition(async () => {
-      try {
-        const supabase = createClient()
-        const { error: updateError } = await supabase
-          .from('nations')
-          .update({ name: trimmed })
-          .eq('id', nationId)
-
-        if (updateError) {
-          // Postgres unique_violation code
-          if (updateError.code === '23505') {
-            setError('That name is already taken by another nation.')
-          } else {
-            setError(updateError.message)
-          }
-          return
-        }
-
-        setSuccess('Nation renamed successfully.')
-        setTimeout(() => window.location.reload(), 700)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong.')
+      const result = await renameNationAction(nationId, trimmed)
+      if (result.error) {
+        setError(result.error)
+        return
       }
+      setSuccess('Nation renamed successfully.')
+      setTimeout(() => window.location.reload(), 700)
     })
   }
 

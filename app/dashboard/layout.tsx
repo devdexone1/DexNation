@@ -6,6 +6,7 @@ import { formatCash, formatPercent } from '@/lib/format'
 import styles from './dashboard.module.css'
 import type { Nation } from '@/types/database'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { getAdminInfo } from '@/lib/getAdminInfo'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -23,23 +24,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     nation = data
   }
 
-  let adminInfo: { isAdmin: boolean; canMute: boolean; canBan: boolean; maxBanDays: number } | null = null
-  if (user) {
-    const { data: adminRow } = await supabase.from('admins').select('rank').eq('user_id', user.id).maybeSingle()
-    if (adminRow) {
-      const { data: perm } = await supabase
-        .from('admin_rank_permissions')
-        .select('can_mute, can_ban, max_ban_days')
-        .eq('rank', adminRow.rank)
-        .maybeSingle()
-      adminInfo = {
-        isAdmin: true,
-        canMute: perm?.can_mute ?? false,
-        canBan: perm?.can_ban ?? false,
-        maxBanDays: perm?.max_ban_days ?? 0,
-      }
-    }
-  }
+  // Centralized helper — see lib/getAdminInfo.ts
+  const adminInfo = await getAdminInfo(user?.id)
 
   return (
     <div className={styles.shell}>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { updateNationFlagAction } from './actions'
 import FlagDisplay from '@/components/FlagDisplay'
 import { FLAG_FRAMES } from '@/types/database'
 import styles from './profile.module.css'
@@ -71,13 +72,10 @@ export default function FlagUploadForm({
           newFlagUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
         }
 
-        const { error: updateError } = await supabase
-          .from('nations')
-          .update({ flag_url: newFlagUrl, flag_frame: frame })
-          .eq('id', nationId)
+        const result = await updateNationFlagAction(nationId, newFlagUrl, frame)
 
-        if (updateError) {
-          setError(updateError.message)
+        if (result.error) {
+          setError(result.error)
           return
         }
 

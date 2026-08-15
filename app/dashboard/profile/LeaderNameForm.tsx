@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { updateLeaderNameAction } from './actions'
 import styles from './profile.module.css'
 
 export default function LeaderNameForm({
@@ -30,17 +30,11 @@ export default function LeaderNameForm({
     }
 
     startTransition(async () => {
-      const supabase = createClient()
-      const { error: updateError } = await supabase
-        .from('nations')
-        .update({ leader_name: trimmed || null })
-        .eq('id', nationId)
-
-      if (updateError) {
-        setError(updateError.message)
+      const result = await updateLeaderNameAction(nationId, trimmed)
+      if (result.error) {
+        setError(result.error)
         return
       }
-
       setSuccess('Leader name updated.')
       router.refresh()
     })
