@@ -194,3 +194,7 @@
   text-decoration: underline;
   color: var(--color-ink-soft);
 }
+
+.sparklineWrap {
+  margin-top: 4px;
+}

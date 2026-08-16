@@ -161,3 +161,16 @@
     display: none;
   }
 }
+
+.navGroup {
+  margin-bottom: 4px;
+}
+
+.navGroupLabel {
+  padding: 14px 12px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-ink-faint);
+}

@@ -4,6 +4,7 @@ import AchievementBadge from './AchievementBadge'
 import FlagDisplay from './FlagDisplay'
 import FlagStand from './FlagStand'
 import ToolInfo from './ToolInfo'
+import Sparkline from './Sparkline'
 import styles from './NationDossier.module.css'
 import type { Achievement, NationAchievement } from '@/types/database'
 
@@ -29,6 +30,11 @@ export interface NationDossierData {
   hasMoraleZero: boolean
   flagUrl: string | null
   flagFrame: string
+  history?: {
+    cashBalance: number[]
+    approvalRating: number[]
+    population: number[]
+  }
 }
 
 export default function NationDossier({
@@ -91,6 +97,11 @@ export default function NationDossier({
         <div className={styles.statItem}>
           <div className={styles.statLabel}>Cash Balance</div>
           <div className={`${styles.statValue} mono`}>{formatCash(data.cashBalance)}</div>
+          {data.history?.cashBalance ? (
+            <div className={styles.sparklineWrap}>
+              <Sparkline data={data.history.cashBalance} color="var(--color-positive)" />
+            </div>
+          ) : null}
         </div>
         <div className={styles.statItem}>
           <div className={styles.statLabel}>Daily GDP</div>
@@ -99,6 +110,11 @@ export default function NationDossier({
         <div className={styles.statItem}>
           <div className={styles.statLabel}>Population</div>
           <div className={`${styles.statValue} mono`}>{formatNumber(data.population)}</div>
+          {data.history?.population ? (
+            <div className={styles.sparklineWrap}>
+              <Sparkline data={data.history.population} color="var(--color-accent)" />
+            </div>
+          ) : null}
         </div>
         <div className={styles.statItem}>
           <div className={styles.statLabel}>GDP / Capita</div>

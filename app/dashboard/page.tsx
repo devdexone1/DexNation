@@ -23,6 +23,7 @@ export default async function OverviewPage() {
   let stocks: NationStock[] = []
   let buildings: OwnedBuildingRow[] = []
   let dossierData: import('@/components/NationDossier').NationDossierData | null = null
+  let historyData: { cashBalance: number[]; approvalRating: number[]; population: number[] } | undefined
   let achievements: Achievement[] = []
   let unlockedAchievements: NationAchievement[] = []
 
@@ -99,6 +100,22 @@ export default async function OverviewPage() {
         hasMoraleZero: militaryRows.some((u) => u.morale_status === 'MORALE_ZERO'),
         flagUrl: nation.flag_url,
         flagFrame: nation.flag_frame,
+        history: historyData,
+      }
+
+      const { data: historyRows } = await supabase
+        .from('nation_stats_history')
+        .select('cash_balance, approval_rating, population')
+        .eq('nation_id', nation.id)
+        .order('recorded_tick', { ascending: true })
+        .limit(14)
+
+      if (historyRows && historyRows.length >= 2) {
+        historyData = {
+          cashBalance: historyRows.map((h) => h.cash_balance),
+          approvalRating: historyRows.map((h) => h.approval_rating),
+          population: historyRows.map((h) => h.population),
+        }
       }
 
       achievements = achievementsRes.data ?? []

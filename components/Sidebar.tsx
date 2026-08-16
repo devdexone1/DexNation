@@ -75,20 +75,46 @@ const icons: Record<string, React.ReactNode> = {
   ),
 }
 
-const NAV_ITEMS = [
-  { to: '/dashboard', labelKey: 'sidebar.dashboard', icon: 'dashboard', exact: true, ready: true },
-  { to: '/dashboard/guide', labelKey: 'sidebar.guide', icon: 'research', ready: true },
-  { to: '/dashboard/economy', labelKey: 'sidebar.economy', icon: 'economy', ready: true },
-  { to: '/dashboard/military', labelKey: 'sidebar.military', icon: 'military', ready: true },
-  { to: '/dashboard/politics', labelKey: 'sidebar.politics', icon: 'politics', ready: true },
-  { to: '/dashboard/research', labelKey: 'sidebar.research', icon: 'research', ready: true },
-  { to: '/dashboard/bank', labelKey: 'sidebar.worldBank', icon: 'bank', ready: true },
-  { to: '/dashboard/market', labelKey: 'sidebar.market', icon: 'market', ready: true },
-  { to: '/dashboard/leaderboard', labelKey: 'sidebar.leaderboard', icon: 'profile', ready: true },
-  { to: '/dashboard/statistics', labelKey: 'sidebar.statistics', icon: 'research', ready: true },
-  { to: '/dashboard/inventory', labelKey: 'sidebar.inventory', icon: 'economy', ready: true },
-  { to: '/dashboard/profile', labelKey: 'sidebar.profile', icon: 'profile', ready: true },
-  { to: '/dashboard/settings', labelKey: 'sidebar.settings', icon: 'profile', ready: true },
+const NAV_GROUPS = [
+  {
+    label: 'Main',
+    items: [
+      { to: '/dashboard', labelKey: 'sidebar.dashboard', icon: 'dashboard', exact: true, ready: true },
+      { to: '/dashboard/map', labelKey: 'sidebar.globalMap', icon: 'politics', ready: true },
+      { to: '/dashboard/guide', labelKey: 'sidebar.guide', icon: 'research', ready: true },
+    ],
+  },
+  {
+    label: 'Nation Management',
+    items: [
+      { to: '/dashboard/economy', labelKey: 'sidebar.economy', icon: 'economy', ready: true },
+      { to: '/dashboard/military', labelKey: 'sidebar.military', icon: 'military', ready: true },
+      { to: '/dashboard/politics', labelKey: 'sidebar.politics', icon: 'politics', ready: true },
+      { to: '/dashboard/research', labelKey: 'sidebar.research', icon: 'research', ready: true },
+    ],
+  },
+  {
+    label: 'Interaction',
+    items: [
+      { to: '/dashboard/bank', labelKey: 'sidebar.worldBank', icon: 'bank', ready: true },
+      { to: '/dashboard/market', labelKey: 'sidebar.market', icon: 'market', ready: true },
+      { to: '/dashboard/leaderboard', labelKey: 'sidebar.leaderboard', icon: 'profile', ready: true },
+    ],
+  },
+  {
+    label: 'Personal',
+    items: [
+      { to: '/dashboard/inventory', labelKey: 'sidebar.inventory', icon: 'economy', ready: true },
+      { to: '/dashboard/profile', labelKey: 'sidebar.profile', icon: 'profile', ready: true },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { to: '/dashboard/statistics', labelKey: 'sidebar.statistics', icon: 'research', ready: true },
+      { to: '/dashboard/settings', labelKey: 'sidebar.settings', icon: 'profile', ready: true },
+    ],
+  },
 ]
 
 export default function Sidebar({
@@ -123,26 +149,25 @@ export default function Sidebar({
       </div>
 
       <nav className={styles.nav}>
-        {NAV_ITEMS.map((item) => {
-          const isActive = item.exact ? pathname === item.to : pathname.startsWith(item.to)
-          return (
-            <Link
-              key={item.to}
-              href={item.to}
-              className={`${styles.link}${isActive ? ` ${styles.linkActive}` : ''}`}
-            >
-              <span className={styles.linkIcon}>{icons[item.icon]}</span>
-              {t(item.labelKey)}
-              {!item.ready && <span className={styles.linkSoon}>SOON</span>}
-            </Link>
-          )
-        })}
-      {isAdmin ? (
-          <a href="/admin" className={styles.link}>
-            <span className={styles.linkIcon}>{icons.politics}</span>
-            Admin Panel
-          </a>
-        ) : null}
+        {NAV_GROUPS.map((group) => (
+          <div className={styles.navGroup} key={group.label}>
+            <div className={styles.navGroupLabel}>{group.label}</div>
+            {group.items.map((item) => {
+              const isActive = item.exact ? pathname === item.to : pathname.startsWith(item.to)
+              return (
+                <Link
+                  key={item.to}
+                  href={item.to}
+                  className={`${styles.link}${isActive ? ` ${styles.linkActive}` : ''}`}
+                >
+                  <span className={styles.linkIcon}>{icons[item.icon]}</span>
+                  {t(item.labelKey)}
+                  {!item.ready && <span className={styles.linkSoon}>SOON</span>}
+                </Link>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       <div className={styles.footer}>

@@ -410,3 +410,14 @@ export interface MilitaryUpkeepDebt {
   status: 'UNPAID' | 'CLEARED'
   created_at: string
 }
+
+export interface NationStatsHistory {
+  id: string
+  nation_id: string
+  cash_balance: number
+  approval_rating: number
+  population: number
+  daily_gdp: number
+  recorded_tick: number
+  created_at: string
+}

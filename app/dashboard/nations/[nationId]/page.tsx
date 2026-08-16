@@ -55,6 +55,21 @@ export default async function NationProfilePage({
     supabase.from('nation_achievements').select('*').eq('nation_id', nationId),
   ])
 
+  const { data: historyRows } = await supabase
+    .from('nation_stats_history')
+    .select('cash_balance, approval_rating, population')
+    .eq('nation_id', nationId)
+    .order('recorded_tick', { ascending: true })
+    .limit(14)
+
+  const historyData = historyRows && historyRows.length >= 2
+    ? {
+        cashBalance: historyRows.map((h) => h.cash_balance),
+        approvalRating: historyRows.map((h) => h.approval_rating),
+        population: historyRows.map((h) => h.population),
+      }
+    : undefined
+
   const { data: summaryRows } = await supabase.rpc('get_nation_public_summary', { p_nation_id: nationId })
   const summary = summaryRows?.[0] ?? {
     credit_score: null,
@@ -186,6 +201,7 @@ export default async function NationProfilePage({
           flagUrl: nation.flag_url,
           flagFrame: nation.flag_frame,
           cashBalance: nation.cash_balance ?? 0,
+          history: historyData,
         }}
         achievements={achievementsRes.data ?? []}
         unlockedAchievements={unlockedRes.data ?? []}
