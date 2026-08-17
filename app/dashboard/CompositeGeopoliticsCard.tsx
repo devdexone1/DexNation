@@ -29,6 +29,15 @@ export default function CompositeGeopoliticsCard({
       </div>
 
       <h2 className={styles.panelTitle} style={{ marginTop: 20 }}>Geopolitics</h2>
+      <div className={styles.mapPlaceholder}>
+        <svg viewBox="0 0 300 110" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+          <ellipse cx="60" cy="40" rx="35" ry="22" fill="rgba(92,255,92,0.18)" />
+          <ellipse cx="150" cy="55" rx="45" ry="28" fill="rgba(92,255,92,0.14)" />
+          <ellipse cx="240" cy="35" rx="30" ry="18" fill="rgba(92,255,92,0.16)" />
+          <circle cx="150" cy="55" r="4" fill="var(--color-accent)" />
+        </svg>
+        <span className={styles.mapPlaceholderNote}>placeholder — replace with real map asset</span>
+      </div>
 
       <div className={styles.geoSectionTitle}>Alliance{allianceLabel ? ` — ${allianceLabel}` : ''}</div>
       {allianceMemberFlags.length === 0 ? (

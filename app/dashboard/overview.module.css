@@ -393,6 +393,8 @@
 }
 
 .commodityAmount {
+  display: flex;
+  align-items: center;
   font-size: 11px;
   color: var(--color-ink-soft);
   margin-bottom: 6px;
@@ -408,8 +410,14 @@
 
 .commodityBarFill {
   height: 100%;
-  background: var(--color-accent);
   border-radius: 999px;
+  transition: width 300ms ease;
+}
+
+.commodityPercent {
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-left: auto;
 }
 
 /* ===== Composite + Geopolitics Card (right top) ===== */
@@ -479,4 +487,59 @@
   font-size: 13px;
   font-weight: 700;
   margin-bottom: 10px;
+}
+
+.buildingsSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.buildingSummaryCard {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.buildingSummaryIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.buildingSummaryName {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.buildingSummaryDetail {
+  font-size: 10.5px;
+  color: var(--color-ink-faint);
+  margin-top: 2px;
+}
+
+.mapPlaceholder {
+  width: 100%;
+  height: 110px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, #16324a, #0f2536);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.mapPlaceholderNote {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-size: 8.5px;
+  color: rgba(255, 255, 255, 0.35);
 }

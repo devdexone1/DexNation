@@ -3,30 +3,38 @@
 @tailwind utilities;
 
 /* =========================================================================
-   DEXNATION — DESIGN TOKENS (File 01: Foundation & UI, Swiss Minimalist)
+   DEXNATION — DARK THEME TOKENS
+   Palette resmi dari referensi user (bukan estimasi):
+     Background : #1A1A1A
+     Surface    : #212121
+     Positive   : #5CFF5C (hijau terang)
+     Accent     : #D1A316 (emas)
    ========================================================================= */
 
 :root {
-  --color-bg: #fbf9f5;
-  --color-surface: #ffffff;
-  --color-surface-sunken: #f4f1ea;
+  --color-bg: #1a1a1a;
+  --color-surface: #212121;
+  --color-surface-sunken: #171717;
 
-  --color-ink: #0f172a;
-  --color-ink-soft: rgba(15, 23, 42, 0.64);
-  --color-ink-faint: rgba(15, 23, 42, 0.4);
+  --color-ink: #f2f2f2;
+  --color-ink-soft: rgba(242, 242, 242, 0.66);
+  --color-ink-faint: rgba(242, 242, 242, 0.42);
 
-  --color-border: rgba(15, 23, 42, 0.12);
-  --color-border-strong: rgba(15, 23, 42, 0.24);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
 
-  --color-accent: #d96b27;
-  --color-accent-ink: #fffaf5;
-  --color-accent-soft: rgba(217, 107, 39, 0.1);
+  --color-accent: #d1a316;
+  --color-accent-ink: #1a1a1a;
+  --color-accent-soft: rgba(209, 163, 22, 0.14);
 
-  --color-positive: #10b981;
-  --color-positive-soft: rgba(16, 185, 129, 0.1);
+  --color-positive: #5cff5c;
+  --color-positive-soft: rgba(92, 255, 92, 0.14);
 
-  --color-negative: #be3a34;
-  --color-negative-soft: rgba(190, 58, 52, 0.1);
+  --color-negative: #ff5c5c;
+  --color-negative-soft: rgba(255, 92, 92, 0.14);
+
+  --color-warning: #f5c842;
+  --color-warning-soft: rgba(245, 200, 66, 0.14);
 
   --radius-sm: 3px;
   --radius-md: 6px;
@@ -49,27 +57,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
-h3,
-h4 {
+h1, h2, h3, h4 {
   font-family: var(--font-display), system-ui, sans-serif;
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0;
 }
 
-p {
-  margin: 0;
-}
+p { margin: 0; }
+a { color: inherit; }
 
-a {
-  color: inherit;
-}
-
-button,
-input,
-select {
+button, input, select {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
@@ -89,7 +87,7 @@ select {
   outline-offset: 2px;
 }
 
-/* ---------- shared primitives (used across pages) ---------- */
+/* ---------- shared primitives ---------- */
 
 .btn {
   display: inline-flex;
@@ -105,23 +103,15 @@ select {
   transition: background-color 120ms ease, border-color 120ms ease, transform 60ms ease;
 }
 
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .btn--primary {
   background: var(--color-accent);
   color: var(--color-accent-ink);
 }
-
 .btn--primary:hover:not(:disabled) {
-  background: #c25f21;
+  background: #b48a12; /* darker gold on hover */
 }
 
 .btn--outline {
@@ -129,43 +119,25 @@ select {
   border-color: var(--color-border-strong);
   color: var(--color-ink);
 }
+.btn--outline:hover:not(:disabled) { border-color: var(--color-ink-soft); }
 
-.btn--outline:hover:not(:disabled) {
-  border-color: var(--color-ink);
-}
+.btn--full { width: 100%; }
 
-.btn--full {
-  width: 100%;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
+.field { display: flex; flex-direction: column; gap: 6px; }
 .field__label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-ink-soft);
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--color-ink-soft);
 }
 
-.input,
-.select {
+.input, .select {
   width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border-strong);
-  background: var(--color-surface);
+  background: var(--color-surface-sunken);
   color: var(--color-ink);
 }
-
-.input:focus,
-.select:focus {
-  border-color: var(--color-ink);
-}
+.input:focus, .select:focus { border-color: var(--color-accent); }
 
 .card {
   background: var(--color-surface);
@@ -174,39 +146,16 @@ select {
 }
 
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
 }
-
-.badge--positive {
-  background: var(--color-positive-soft);
-  color: #0a7a5c;
-}
-
-.badge--accent {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
-}
-
-.badge--neutral {
-  background: var(--color-surface-sunken);
-  color: var(--color-ink-soft);
-}
+.badge--positive { background: var(--color-positive-soft); color: var(--color-positive); }
+.badge--accent { background: var(--color-accent-soft); color: var(--color-accent); }
+.badge--neutral { background: var(--color-surface-sunken); color: var(--color-ink-soft); }
 
 .screen-loading {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-ink-soft);
-  font-family: var(--font-mono), monospace;
-  font-size: 13px;
-  letter-spacing: 0.04em;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  color: var(--color-ink-soft); font-family: var(--font-mono), monospace;
+  font-size: 13px; letter-spacing: 0.04em;
 }

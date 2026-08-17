@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { formatNumber } from '@/lib/format'
+import { formatNumber, formatCash, formatPercent } from '@/lib/format'
 import { BUILDING_CATEGORY_LABELS } from '@/types/database'
 import type {
   Nation,
@@ -9,19 +9,19 @@ import type {
   Achievement,
   NationAchievement,
 } from '@/types/database'
-import NationDossierHistoryTypes from '@/components/NationDossier' // kept for type import consistency
 import NationIdentityCard from './NationIdentityCard'
 import WarehouseGrid from './WarehouseGrid'
 import CompositeGeopoliticsCard from './CompositeGeopoliticsCard'
+import BuildingsSummaryGrid from './BuildingsSummaryGrid'
 import OwnedBuildingsList from '@/app/dashboard/economy/OwnedBuildingsList'
 import NewsTicker from '@/components/NewsTicker'
+import Sparkline from '@/components/Sparkline'
 import { getServerTranslator } from '@/lib/i18n/getServerLocale'
 import styles from './overview.module.css'
 
 interface OwnedBuildingRow extends NationBuilding {
   building_types: Pick<BuildingType, 'name' | 'category'> | null
 }
-
 interface FlagRef {
   id: string
   name: string
@@ -47,6 +47,20 @@ export default async function OverviewPage() {
   let allianceLabel: string | null = null
   let allianceMemberFlags: FlagRef[] = []
   let warOpponentFlags: FlagRef[] = []
+  let taxRate = 0
+  let politicalStability = 0
+  let history: {
+    cashBalance: number[]
+    approvalRating: number[]
+    population: number[]
+    dailyGdp: number[]
+    taxRate: number[]
+    politicalStability: number[]
+    gdpPerCapita: number[]
+  } | null = null
+
+  const { data: locks } = await supabase.from('system_locks').select('current_tick').eq('id', 1).maybeSingle()
+  const currentDay = locks?.current_tick ?? 0
 
   if (user) {
     const { data: nationData } = await supabase
@@ -68,29 +82,19 @@ export default async function OverviewPage() {
         militaryRes,
         achievementsRes,
         unlockedRes,
+        historyRes,
       ] = await Promise.all([
         supabase.from('governments').select('*').eq('nation_id', nation.id).maybeSingle(),
-        supabase
-          .from('nation_stocks')
-          .select('*')
-          .eq('nation_id', nation.id)
-          .order('resource_type', { ascending: true }),
-        supabase
-          .from('nation_buildings')
-          .select('*, building_types(name, category)')
-          .eq('nation_id', nation.id)
-          .order('created_at', { ascending: false }),
+        supabase.from('nation_stocks').select('*').eq('nation_id', nation.id).order('resource_type', { ascending: true }),
+        supabase.from('nation_buildings').select('*, building_types(name, category)').eq('nation_id', nation.id).order('created_at', { ascending: false }),
         supabase.from('building_types').select('*'),
         supabase.from('nation_credit_scores').select('credit_score, credit_grade').eq('nation_id', nation.id).maybeSingle(),
         supabase.from('alliance_members').select('alliance_id, role').eq('nation_id', nation.id).maybeSingle(),
-        supabase
-          .from('active_wars')
-          .select('id, attacker_id, defender_id')
-          .or(`attacker_id.eq.${nation.id},defender_id.eq.${nation.id}`)
-          .eq('war_status', 'ACTIVE'),
+        supabase.from('active_wars').select('id, attacker_id, defender_id').or(`attacker_id.eq.${nation.id},defender_id.eq.${nation.id}`).eq('war_status', 'ACTIVE'),
         supabase.from('nation_military').select('amount, morale_status').eq('nation_id', nation.id),
         supabase.from('achievements').select('*'),
         supabase.from('nation_achievements').select('*').eq('nation_id', nation.id),
+        supabase.from('nation_stats_history').select('*').eq('nation_id', nation.id).order('recorded_tick', { ascending: true }).limit(14),
       ])
 
       stocks = stocksRes.data ?? []
@@ -98,25 +102,33 @@ export default async function OverviewPage() {
       catalog = catalogRes.data ?? []
       achievements = achievementsRes.data ?? []
       unlockedAchievements = unlockedRes.data ?? []
+      taxRate = govRes.data?.tax_rate ?? 0
+      politicalStability = govRes.data?.political_stability ?? 0
 
       const militaryRows = militaryRes.data ?? []
       const militaryCount = militaryRows.reduce((sum, u) => sum + u.amount, 0)
       const hasMoraleZero = militaryRows.some((u) => u.morale_status === 'MORALE_ZERO')
 
-      // Formulas identical to components/NationDossier.tsx — kept in sync intentionally, not new logic.
       economicHealth = Math.round(nation.approval_rating * 0.5 + (creditRes.data?.credit_score ?? 0) * 0.5)
       infrastructureIndex = Math.min(100, buildings.length * 4)
       militaryReadiness = Math.min(100, Math.round(militaryCount * (hasMoraleZero ? 0.5 : 1)))
 
-      if (allianceMembershipRes.data) {
-        const { data: allianceData } = await supabase
-          .from('alliances')
-          .select('name, tag')
-          .eq('id', allianceMembershipRes.data.alliance_id)
-          .maybeSingle()
-        if (allianceData) {
-          allianceLabel = `${allianceData.name} [${allianceData.tag}]`
+      const historyRows = historyRes.data ?? []
+      if (historyRows.length >= 2) {
+        history = {
+          cashBalance: historyRows.map((h) => h.cash_balance),
+          approvalRating: historyRows.map((h) => h.approval_rating),
+          population: historyRows.map((h) => h.population),
+          dailyGdp: historyRows.map((h) => h.daily_gdp),
+          taxRate: historyRows.map((h) => h.tax_rate ?? 0),
+          politicalStability: historyRows.map((h) => h.political_stability ?? 0),
+          gdpPerCapita: historyRows.map((h) => (h.population > 0 ? h.daily_gdp / h.population : 0)),
         }
+      }
+
+      if (allianceMembershipRes.data) {
+        const { data: allianceData } = await supabase.from('alliances').select('name, tag').eq('id', allianceMembershipRes.data.alliance_id).maybeSingle()
+        if (allianceData) allianceLabel = `${allianceData.name} [${allianceData.tag}]`
 
         const { data: fellowMembers } = await supabase
           .from('alliance_members')
@@ -124,13 +136,9 @@ export default async function OverviewPage() {
           .eq('alliance_id', allianceMembershipRes.data.alliance_id)
           .neq('nation_id', nation.id)
           .limit(6)
-
         const fellowIds = (fellowMembers ?? []).map((m) => m.nation_id)
         if (fellowIds.length > 0) {
-          const { data: fellowNations } = await supabase
-            .from('nations')
-            .select('id, name, flag_url')
-            .in('id', fellowIds)
+          const { data: fellowNations } = await supabase.from('nations').select('id, name, flag_url').in('id', fellowIds)
           allianceMemberFlags = fellowNations ?? []
         }
       }
@@ -138,10 +146,7 @@ export default async function OverviewPage() {
       const wars = warsRes.data ?? []
       if (wars.length > 0) {
         const opponentIds = wars.map((w) => (w.attacker_id === nation!.id ? w.defender_id : w.attacker_id))
-        const { data: opponentNations } = await supabase
-          .from('nations')
-          .select('id, name, flag_url')
-          .in('id', opponentIds)
+        const { data: opponentNations } = await supabase.from('nations').select('id, name, flag_url').in('id', opponentIds)
         warOpponentFlags = opponentNations ?? []
       }
     }
@@ -155,21 +160,15 @@ export default async function OverviewPage() {
     .limit(10)
 
   const alerts: { text: string; level: 'warning' | 'neutral' }[] = []
-
   const nearCapacity = stocks.filter((s) => s.max_capacity > 0 && s.amount / s.max_capacity >= 0.9)
   nearCapacity.forEach((s) => {
-    alerts.push({
-      text: `${s.resource_type} ${t('alerts.nearCapacity')} (${formatNumber(s.amount)} / ${formatNumber(s.max_capacity)})`,
-      level: 'warning',
-    })
+    alerts.push({ text: `${s.resource_type} ${t('alerts.nearCapacity')} (${formatNumber(s.amount)} / ${formatNumber(s.max_capacity)})`, level: 'warning' })
   })
-
   const maintenanceKit = stocks.find((s) => s.resource_type === 'Maintenance Kit')
   const hasProcessingBuilding = buildings.some((b) => b.building_types?.category === 'PROCESSING')
   if (hasProcessingBuilding && maintenanceKit && maintenanceKit.amount <= 0) {
     alerts.push({ text: t('alerts.outOfMaintenanceKit'), level: 'warning' })
   }
-
   if (buildings.length === 0) {
     alerts.push({ text: t('alerts.noBuildingsYet'), level: 'neutral' })
   }
@@ -178,20 +177,19 @@ export default async function OverviewPage() {
     buildings.reduce<Record<string, { buildingType: BuildingType; count: number }>>((acc, b) => {
       const bt = catalog.find((c) => c.id === b.building_type_id)
       if (!bt) return acc
-      if (!acc[b.building_type_id]) {
-        acc[b.building_type_id] = { buildingType: bt, count: 0 }
-      }
+      if (!acc[b.building_type_id]) acc[b.building_type_id] = { buildingType: bt, count: 0 }
       acc[b.building_type_id].count += 1
       return acc
     }, {})
   )
 
+  const gdpPerCapita = nation && nation.population > 0 ? nation.daily_gdp / nation.population : 0
+
   return (
     <div>
-      <NewsTicker items={newsData ?? []} />
+      <NewsTicker items={newsData ?? []} currentDay={currentDay} />
 
       <div className={styles.dashboardGrid}>
-        {/* ===== LEFT COLUMN ===== */}
         <div className={styles.colLeft}>
           {nation ? (
             <NationIdentityCard
@@ -210,20 +208,51 @@ export default async function OverviewPage() {
 
           <div className={`${styles.panel} card`}>
             <div className={styles.buildingsCardTitle}>Infrastructure &amp; Buildings</div>
-            <div className={styles.buildingsCardSub}>
-              {buildings.length} building{buildings.length === 1 ? '' : 's'} owned
-            </div>
+            <div className={styles.buildingsCardSub}>{buildings.length} building{buildings.length === 1 ? '' : 's'} owned</div>
             <OwnedBuildingsList grouped={groupedBuildings} />
           </div>
         </div>
 
-        {/* ===== CENTER COLUMN ===== */}
         <div className={styles.colCenter}>
           <div className={`${styles.panel} card`}>
             <h2 className={styles.panelTitle}>Strategic Overview</h2>
-            {nation ? (
-              <StrategicOverviewInline nation={nation} />
-            ) : null}
+            <div className={styles.statGrid}>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Cash Balance</span>
+                <span className={`${styles.statValue} mono`} style={{ color: 'var(--color-positive)' }}>{formatCash(nation?.cash_balance)}</span>
+                {history ? <Sparkline data={history.cashBalance} color="var(--color-positive)" /> : null}
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Approval Rating</span>
+                <span className={`${styles.statValue} mono`}>{formatPercent(nation?.approval_rating)}</span>
+                {history ? <Sparkline data={history.approvalRating} color="var(--color-accent)" /> : null}
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Daily GDP</span>
+                <span className={`${styles.statValue} mono`}>{formatCash(nation?.daily_gdp)}</span>
+                {history ? <Sparkline data={history.dailyGdp} color="var(--color-positive)" /> : null}
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Population</span>
+                <span className={`${styles.statValue} mono`}>{formatNumber(nation?.population)}</span>
+                {history ? <Sparkline data={history.population} color="var(--color-ink)" /> : null}
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>GDP / Capita</span>
+                <span className={`${styles.statValue} mono`}>${gdpPerCapita.toFixed(2)}</span>
+                {history ? <Sparkline data={history.gdpPerCapita} color="var(--color-accent)" /> : null}
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Tax Rate</span>
+                <span className={`${styles.statValue} mono`}>{formatPercent(taxRate)}</span>
+                {history ? <Sparkline data={history.taxRate} color="var(--color-accent)" /> : null}
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Political Stability</span>
+                <span className={`${styles.statValue} mono`}>{formatPercent(politicalStability)}</span>
+                {history ? <Sparkline data={history.politicalStability} color="var(--color-positive)" /> : null}
+              </div>
+            </div>
           </div>
 
           <WarehouseGrid stocks={stocks} />
@@ -231,25 +260,12 @@ export default async function OverviewPage() {
           <div className={`${styles.panel} card`}>
             <h2 className={styles.panelTitle}>Buildings Summary</h2>
             <p className={styles.panelSubtitle}>
-              {groupedBuildings.length} unique building type{groupedBuildings.length === 1 ? '' : 's'} across{' '}
-              {buildings.length} total structure{buildings.length === 1 ? '' : 's'}.
+              {groupedBuildings.length} unique building type{groupedBuildings.length === 1 ? '' : 's'} across {buildings.length} total structure{buildings.length === 1 ? '' : 's'}.
             </p>
-            {groupedBuildings.length > 0 ? (
-              <div className={styles.stockList}>
-                {groupedBuildings.map((g) => (
-                  <div className={styles.stockRow} key={g.buildingType.id}>
-                    <span className={styles.stockName}>{g.buildingType.name}</span>
-                    <span className={styles.stockAmount} style={{ marginLeft: 'auto' }}>
-                      {BUILDING_CATEGORY_LABELS[g.buildingType.category] ?? g.buildingType.category} · × {g.count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : null}
+            <BuildingsSummaryGrid grouped={groupedBuildings} />
           </div>
         </div>
 
-        {/* ===== RIGHT COLUMN ===== */}
         <div className={styles.colRight}>
           <CompositeGeopoliticsCard
             economicHealth={economicHealth}
@@ -274,61 +290,6 @@ export default async function OverviewPage() {
             )}
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-// Small inline server component: Strategic Overview stat grid + history sparklines.
-// Kept in this file (not a separate module) since it's tightly coupled to this
-// page's data shape and isn't reused anywhere else.
-async function StrategicOverviewInline({ nation }: { nation: Nation }) {
-  const { formatCash, formatPercent } = await import('@/lib/format')
-  const Sparkline = (await import('@/components/Sparkline')).default
-  const supabase = await createClient()
-
-  const { data: historyRows } = await supabase
-    .from('nation_stats_history')
-    .select('cash_balance, approval_rating, population')
-    .eq('nation_id', nation.id)
-    .order('recorded_tick', { ascending: true })
-    .limit(14)
-
-  const hasHistory = historyRows && historyRows.length >= 2
-  const gdpPerCapita = nation.population > 0 ? nation.daily_gdp / nation.population : 0
-
-  return (
-    <div className={styles.statGrid}>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Cash Balance</span>
-        <span className={`${styles.statValue} mono`}>{formatCash(nation.cash_balance)}</span>
-        {hasHistory ? <Sparkline data={historyRows!.map((h) => h.cash_balance)} color="var(--color-positive)" /> : null}
-      </div>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Approval Rating</span>
-        <span className={`${styles.statValue} ${styles.statValuePositive} mono`}>{formatPercent(nation.approval_rating)}</span>
-        {hasHistory ? <Sparkline data={historyRows!.map((h) => h.approval_rating)} color="var(--color-accent)" /> : null}
-      </div>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Daily GDP</span>
-        <span className={`${styles.statValue} mono`}>{formatCash(nation.daily_gdp)}</span>
-      </div>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Population</span>
-        <span className={`${styles.statValue} mono`}>{formatNumber(nation.population)}</span>
-        {hasHistory ? <Sparkline data={historyRows!.map((h) => h.population)} color="var(--color-ink)" /> : null}
-      </div>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>GDP / Capita</span>
-        <span className={`${styles.statValue} mono`}>${gdpPerCapita.toFixed(2)}</span>
-      </div>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Tax Rate</span>
-        <span className={`${styles.statValue} mono`}>10.00%</span>
-      </div>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Political Stability</span>
-        <span className={`${styles.statValue} mono`}>100.00%</span>
       </div>
     </div>
   )
