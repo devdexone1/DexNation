@@ -6,6 +6,7 @@ import styles from './overview.module.css'
 interface GroupedBuilding {
   buildingType: BuildingType
   count: number
+  totalLevel: number
 }
 
 export default function BuildingsSummaryGrid({ grouped }: { grouped: GroupedBuilding[] }) {
@@ -29,7 +30,7 @@ export default function BuildingsSummaryGrid({ grouped }: { grouped: GroupedBuil
                   have a building-leveling mechanic yet. See summary at the
                   end of this response for why this is flagged as unbuilt. */}
               <div className={styles.buildingSummaryDetail}>
-                Quantity: {g.count} · Level: 1 · {outputText}
+                Quantity: {g.count} · Avg Level: {(g.totalLevel / g.count).toFixed(1)} · {outputText}
               </div>
             </div>
           </div>

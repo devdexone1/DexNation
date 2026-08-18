@@ -6,6 +6,7 @@ import LeaderNameForm from './LeaderNameForm'
 import FlagUploadForm from './FlagUploadForm'
 import SignOutButton from './SignOutButton'
 import styles from './profile.module.css'
+import LeaderPhotoUploadForm from './LeaderPhotoUploadForm'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -162,7 +163,15 @@ export default async function ProfilePage() {
           />
         ) : null}
       </div>
+      
 
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Leader Photo</h2>
+        {nation && user ? (
+          <LeaderPhotoUploadForm userId={user.id} nationId={nation.id} currentPhotoUrl={nation.leader_photo_url} />
+        ) : null}
+      </div>
+      
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Nation Stats</h2>
         <div className={styles.statsGrid}>

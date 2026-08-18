@@ -2,39 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================================================
-   DEXNATION — DARK THEME TOKENS
-   Palette resmi dari referensi user (bukan estimasi):
-     Background : #1A1A1A
-     Surface    : #212121
-     Positive   : #5CFF5C (hijau terang)
-     Accent     : #D1A316 (emas)
-   ========================================================================= */
-
 :root {
-  --color-bg: #1a1a1a;
-  --color-surface: #212121;
-  --color-surface-sunken: #171717;
+  --color-bg: #fbf9f5;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f4f1ea;
 
-  --color-ink: #f2f2f2;
-  --color-ink-soft: rgba(242, 242, 242, 0.66);
-  --color-ink-faint: rgba(242, 242, 242, 0.42);
+  --color-ink: #0f172a;
+  --color-ink-soft: rgba(15, 23, 42, 0.64);
+  --color-ink-faint: rgba(15, 23, 42, 0.4);
 
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-border: rgba(15, 23, 42, 0.12);
+  --color-border-strong: rgba(15, 23, 42, 0.24);
 
-  --color-accent: #d1a316;
-  --color-accent-ink: #1a1a1a;
-  --color-accent-soft: rgba(209, 163, 22, 0.14);
+  --color-accent: #d96b27;
+  --color-accent-ink: #fffaf5;
+  --color-accent-soft: rgba(217, 107, 39, 0.1);
 
-  --color-positive: #5cff5c;
-  --color-positive-soft: rgba(92, 255, 92, 0.14);
+  --color-positive: #10b981;
+  --color-positive-soft: rgba(16, 185, 129, 0.1);
 
-  --color-negative: #ff5c5c;
-  --color-negative-soft: rgba(255, 92, 92, 0.14);
+  --color-negative: #be3a34;
+  --color-negative-soft: rgba(190, 58, 52, 0.1);
 
-  --color-warning: #f5c842;
-  --color-warning-soft: rgba(245, 200, 66, 0.14);
+  --color-warning: #c98a1f;
+  --color-warning-soft: rgba(201, 138, 31, 0.1);
 
   --radius-sm: 3px;
   --radius-md: 6px;
@@ -43,9 +34,7 @@
   --topbar-height: 64px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -66,96 +55,45 @@ h1, h2, h3, h4 {
 
 p { margin: 0; }
 a { color: inherit; }
-
-button, input, select {
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
-
-.mono {
-  font-family: var(--font-mono), monospace;
-}
-
-::selection {
-  background: var(--color-accent-soft);
-  color: var(--color-ink);
-}
-
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* ---------- shared primitives ---------- */
+button, input, select { font-family: inherit; font-size: inherit; color: inherit; }
+.mono { font-family: var(--font-mono), monospace; }
+::selection { background: var(--color-accent-soft); color: var(--color-ink); }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: var(--radius-sm); border: 1px solid transparent;
+  font-weight: 600; font-size: 14px; cursor: pointer;
   transition: background-color 120ms ease, border-color 120ms ease, transform 60ms ease;
 }
-
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-.btn--primary {
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-}
-.btn--primary:hover:not(:disabled) {
-  background: #b48a12; /* darker gold on hover */
-}
-
-.btn--outline {
-  background: transparent;
-  border-color: var(--color-border-strong);
-  color: var(--color-ink);
-}
-.btn--outline:hover:not(:disabled) { border-color: var(--color-ink-soft); }
-
+.btn--primary { background: var(--color-accent); color: var(--color-accent-ink); }
+.btn--primary:hover:not(:disabled) { background: #c25f21; }
+.btn--outline { background: transparent; border-color: var(--color-border-strong); color: var(--color-ink); }
+.btn--outline:hover:not(:disabled) { border-color: var(--color-ink); }
 .btn--full { width: 100%; }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field__label {
-  font-size: 12px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--color-ink-soft);
-}
+.field__label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-ink-soft); }
 
 .input, .select {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-surface-sunken);
-  color: var(--color-ink);
+  width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong); background: var(--color-surface); color: var(--color-ink);
 }
-.input:focus, .select:focus { border-color: var(--color-accent); }
+.input:focus, .select:focus { border-color: var(--color-ink); }
 
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 
 .badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 10px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
   font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
 }
-.badge--positive { background: var(--color-positive-soft); color: var(--color-positive); }
+.badge--positive { background: var(--color-positive-soft); color: #0a7a5c; }
 .badge--accent { background: var(--color-accent-soft); color: var(--color-accent); }
 .badge--neutral { background: var(--color-surface-sunken); color: var(--color-ink-soft); }
 
 .screen-loading {
   min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  color: var(--color-ink-soft); font-family: var(--font-mono), monospace;
-  font-size: 13px; letter-spacing: 0.04em;
+  color: var(--color-ink-soft); font-family: var(--font-mono), monospace; font-size: 13px; letter-spacing: 0.04em;
 }

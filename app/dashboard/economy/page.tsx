@@ -81,17 +81,9 @@ export default async function EconomyPage() {
         <h2 className={styles.sectionTitle}>Your Buildings ({ownedBuildings.length})</h2>
         <div className={`${styles.panel} card`}>
           <OwnedBuildingsList
-            grouped={Object.values(
-              ownedBuildings.reduce<Record<string, { buildingType: BuildingType; count: number }>>((acc, b) => {
-                const bt = catalog.find((c) => c.id === b.building_type_id)
-                if (!bt) return acc
-                if (!acc[b.building_type_id]) {
-                  acc[b.building_type_id] = { buildingType: bt, count: 0 }
-                }
-                acc[b.building_type_id].count += 1
-                return acc
-              }, {})
-            )}
+            nationId={nation?.id || ''}
+            buildings={ownedBuildings}
+            catalog={catalog}
           />
         </div>
       </div>

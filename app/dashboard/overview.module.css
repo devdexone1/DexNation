@@ -543,3 +543,62 @@
   font-size: 8.5px;
   color: rgba(255, 255, 255, 0.35);
 }
+
+.overviewGridTop {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 14px 0 10px;
+}
+
+.overviewGridBottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.6fr;
+  gap: 10px;
+}
+
+.growthChartCard {
+  padding: 10px 12px;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.growthChartLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink-faint);
+  margin-bottom: 4px;
+}
+
+.periodSelect {
+  width: auto;
+  font-size: 11px;
+  padding: 5px 10px;
+}
+
+.trophiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 6px;
+}
+
+.trophyBadge {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-accent);
+}
+
+@media (max-width: 1300px) {
+  .overviewGridTop, .overviewGridBottom {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

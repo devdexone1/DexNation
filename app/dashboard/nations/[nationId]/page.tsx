@@ -3,7 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { formatCash, formatNumber, formatPercent, formatNationAge } from '@/lib/format'
 import FlagDisplay from '@/components/FlagDisplay'
 import DeclareWarFromProfile from './DeclareWarFromProfile'
-import NationDossier from '@/components/NationDossier'
+import NationIdentityCard from '@/app/dashboard/NationIdentityCard'
+import StrategicOverviewPanel from '@/app/dashboard/StrategicOverviewPanel'
+import type { NationStatsHistory, NationalTrophy, NationTrophy } from '@/types/database'
 import type { Achievement, NationAchievement } from '@/types/database'
 import AllianceBadgeButton from '@/components/AllianceBadgeButton'
 import styles from './nation-profile.module.css'
@@ -27,7 +29,7 @@ export default async function NationProfilePage({
     )
   }
 
-  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, achievementsRes, unlockedRes] = await Promise.all([
+  const [govRes, membershipRes, warsRes, listingsRes, battlesRes, viewerNationRes, achievementsRes, unlockedRes, historyRes, trophiesRes] = await Promise.all([
     supabase.from('governments').select('ideology, tax_rate, political_stability').eq('nation_id', nationId).maybeSingle(),
     supabase.from('alliance_members').select('alliance_id, role').eq('nation_id', nationId).maybeSingle(),
     supabase
@@ -53,14 +55,18 @@ export default async function NationProfilePage({
       : Promise.resolve({ data: null }),
     supabase.from('achievements').select('*'),
     supabase.from('nation_achievements').select('*').eq('nation_id', nationId),
+    supabase.from('nation_stats_history').select('*').eq('nation_id', nationId).order('recorded_tick', { ascending: true }).limit(365),
+    supabase.from('nation_trophies').select('*').eq('nation_id', nationId).order('awarded_at', { ascending: false }),
   ])
 
-  const { data: historyRows } = await supabase
-    .from('nation_stats_history')
-    .select('cash_balance, approval_rating, population')
-    .eq('nation_id', nationId)
-    .order('recorded_tick', { ascending: true })
-    .limit(14)
+  const [trophiesRes2, trophyDefsRes] = await Promise.all([
+    supabase.from('nation_trophies').select('*').eq('nation_id', nationId),
+    supabase.from('national_trophies').select('*'),
+  ])
+  const trophies = trophiesRes2.data ?? []
+  const trophyDefs = trophyDefsRes.data ?? []
+
+  const historyRows = historyRes.data ?? []
 
   const historyData = historyRows && historyRows.length >= 2
     ? {
@@ -86,6 +92,7 @@ export default async function NationProfilePage({
   const listings = listingsRes.data ?? []
   const battles = battlesRes.data ?? []
   const viewerNation = viewerNationRes.data as { id: string; name: string } | null
+  const fullHistory = historyRes.data ?? []
 
   let allianceInfo: { id: string; name: string; tag: string } | null = null
   if (membership) {
@@ -178,34 +185,33 @@ export default async function NationProfilePage({
         </div>
       </div>
 
-      <NationDossier
-        data={{
-          name: nation.name,
-          countryNumber: nation.country_number,
-          leaderName: nation.leader_name,
-          ideology: government?.ideology ?? '—',
-          continentId: nation.continent_id,
-          createdAt: nation.created_at,
-          dailyGdp: nation.daily_gdp,
-          population: nation.population,
-          taxRate: government?.tax_rate ?? 0,
-          politicalStability: government?.political_stability ?? 0,
-          approvalRating: nation.approval_rating,
-          creditScore: summary.credit_score,
-          creditGrade: summary.credit_grade,
-          allianceLabel: allianceInfo ? `${allianceInfo.name} [${allianceInfo.tag}]` : null,
-          activeWarsCount: wars.length,
-          buildingCount: summary.building_count,
-          militaryCount: summary.military_total_units,
-          hasMoraleZero: summary.has_morale_zero,
-          flagUrl: nation.flag_url,
-          flagFrame: nation.flag_frame,
-          cashBalance: nation.cash_balance ?? 0,
-          history: historyData,
-        }}
+      <NationIdentityCard
+        name={nation.name}
+        countryNumber={nation.country_number}
+        leaderName={nation.leader_name}
+        leaderPhotoUrl={nation.leader_photo_url}
+        createdAt={nation.created_at}
+        flagUrl={nation.flag_url}
+        flagFrame={nation.flag_frame}
+        economicHealth={Math.round(nation.approval_rating * 0.5 + (summary.credit_score ?? 0) * 0.5)}
+        infrastructureIndex={Math.min(100, summary.building_count * 4)}
         achievements={achievementsRes.data ?? []}
         unlockedAchievements={unlockedRes.data ?? []}
+        trophies={trophies}
+        trophyDefs={trophyDefs}
       />
+
+      <div style={{ marginTop: 16 }}>
+        <StrategicOverviewPanel
+          cashBalance={nation.cash_balance}
+          approvalRating={nation.approval_rating}
+          dailyGdp={nation.daily_gdp}
+          population={nation.population}
+          taxRate={0}
+          politicalStability={0}
+          history={historyRows ?? []}
+        />
+      </div>
 
       {viewerNation && !isOwnProfile ? (
         <div className={styles.section}>

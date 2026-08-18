@@ -41,11 +41,13 @@ export default function NationDossier({
   data,
   achievements,
   unlockedAchievements,
+  trophies = [],
   isOwnNation = false,
 }: {
   data: NationDossierData
   achievements: Achievement[]
   unlockedAchievements: NationAchievement[]
+  trophies?: { id: string; title: string; description: string | null; icon: string }[]
   isOwnNation?: boolean
 }) {
   const gdpPerCapita = data.population > 0 ? data.dailyGdp / data.population : 0

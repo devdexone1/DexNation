@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatNumber } from '@/lib/format'
 import AdminStatEditor from './AdminStatEditor'
+import AwardTrophyPanel from './AwardTrophyPanel'
 import { getAdminInfo } from '@/lib/getAdminInfo'
 import ChatReportsPanel from './ChatReportsPanel'
 import styles from './admin.module.css'
@@ -21,6 +22,7 @@ export default async function AdminPage() {
     supabase.from('active_wars').select('id', { count: 'exact', head: true }).eq('war_status', 'ACTIVE'),
     supabase.from('nations').select('id, user_id, name').order('created_at', { ascending: false }).limit(50),
     supabase.rpc('get_open_chat_reports'),
+    supabase.from('national_trophies').select('*'),
   ])
 
   return (

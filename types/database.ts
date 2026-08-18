@@ -7,6 +7,7 @@ export interface Nation {
   user_id: string
   name: string
   leader_name: string | null
+  leader_photo_url: string | null
   country_number: number
   continent_id: string
   cash_balance: number
@@ -55,6 +56,7 @@ export interface NationBuilding {
   nation_id: string
   building_type_id: string
   status: string
+  level: number
   completion_tick: number | null
   created_at: string
 }
@@ -420,4 +422,19 @@ export interface NationStatsHistory {
   daily_gdp: number
   recorded_tick: number
   created_at: string
+}
+
+export interface NationalTrophy {
+  id: string
+  title: string
+  description: string
+  icon: string
+}
+
+export interface NationTrophy {
+  id: string
+  nation_id: string
+  trophy_id: string
+  note: string | null
+  awarded_at: string
 }

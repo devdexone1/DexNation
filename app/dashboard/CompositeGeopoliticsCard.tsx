@@ -32,8 +32,11 @@ export default function CompositeGeopoliticsCard({
       <div className={styles.mapPlaceholder}>
         <svg viewBox="0 0 300 110" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
           <ellipse cx="60" cy="40" rx="35" ry="22" fill="rgba(92,255,92,0.18)" />
+          <text x="60" y="42" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.5)">Borealis</text>
           <ellipse cx="150" cy="55" rx="45" ry="28" fill="rgba(92,255,92,0.14)" />
+          <text x="150" y="57" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.5)">Aequator</text>
           <ellipse cx="240" cy="35" rx="30" ry="18" fill="rgba(92,255,92,0.16)" />
+          <text x="240" y="37" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.5)">Zephyrus</text>
           <circle cx="150" cy="55" r="4" fill="var(--color-accent)" />
         </svg>
         <span className={styles.mapPlaceholderNote}>placeholder — replace with real map asset</span>

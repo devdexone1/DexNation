@@ -13,9 +13,10 @@ import NationIdentityCard from './NationIdentityCard'
 import WarehouseGrid from './WarehouseGrid'
 import CompositeGeopoliticsCard from './CompositeGeopoliticsCard'
 import BuildingsSummaryGrid from './BuildingsSummaryGrid'
-import OwnedBuildingsList from '@/app/dashboard/economy/OwnedBuildingsList'
+import DashboardBuildingsList from './DashboardBuildingsList'
 import NewsTicker from '@/components/NewsTicker'
-import Sparkline from '@/components/Sparkline'
+import StrategicOverviewPanel from './StrategicOverviewPanel'
+import type { NationStatsHistory, NationalTrophy, NationTrophy } from '@/types/database'
 import { getServerTranslator } from '@/lib/i18n/getServerLocale'
 import styles from './overview.module.css'
 
@@ -49,15 +50,9 @@ export default async function OverviewPage() {
   let warOpponentFlags: FlagRef[] = []
   let taxRate = 0
   let politicalStability = 0
-  let history: {
-    cashBalance: number[]
-    approvalRating: number[]
-    population: number[]
-    dailyGdp: number[]
-    taxRate: number[]
-    politicalStability: number[]
-    gdpPerCapita: number[]
-  } | null = null
+  let historyRows: NationStatsHistory[] = []
+  let trophies: NationTrophy[] = []
+  let trophyDefs: NationalTrophy[] = []
 
   const { data: locks } = await supabase.from('system_locks').select('current_tick').eq('id', 1).maybeSingle()
   const currentDay = locks?.current_tick ?? 0
@@ -83,6 +78,8 @@ export default async function OverviewPage() {
         achievementsRes,
         unlockedRes,
         historyRes,
+        trophiesRes,
+        trophyDefsRes,
       ] = await Promise.all([
         supabase.from('governments').select('*').eq('nation_id', nation.id).maybeSingle(),
         supabase.from('nation_stocks').select('*').eq('nation_id', nation.id).order('resource_type', { ascending: true }),
@@ -94,7 +91,9 @@ export default async function OverviewPage() {
         supabase.from('nation_military').select('amount, morale_status').eq('nation_id', nation.id),
         supabase.from('achievements').select('*'),
         supabase.from('nation_achievements').select('*').eq('nation_id', nation.id),
-        supabase.from('nation_stats_history').select('*').eq('nation_id', nation.id).order('recorded_tick', { ascending: true }).limit(14),
+        supabase.from('nation_stats_history').select('*').eq('nation_id', nation.id).order('recorded_tick', { ascending: true }).limit(365),
+        supabase.from('nation_trophies').select('*').eq('nation_id', nation.id),
+        supabase.from('national_trophies').select('*'),
       ])
 
       stocks = stocksRes.data ?? []
@@ -104,6 +103,9 @@ export default async function OverviewPage() {
       unlockedAchievements = unlockedRes.data ?? []
       taxRate = govRes.data?.tax_rate ?? 0
       politicalStability = govRes.data?.political_stability ?? 0
+      historyRows = historyRes.data ?? []
+      trophies = trophiesRes.data ?? []
+      trophyDefs = trophyDefsRes.data ?? []
 
       const militaryRows = militaryRes.data ?? []
       const militaryCount = militaryRows.reduce((sum, u) => sum + u.amount, 0)
@@ -112,19 +114,6 @@ export default async function OverviewPage() {
       economicHealth = Math.round(nation.approval_rating * 0.5 + (creditRes.data?.credit_score ?? 0) * 0.5)
       infrastructureIndex = Math.min(100, buildings.length * 4)
       militaryReadiness = Math.min(100, Math.round(militaryCount * (hasMoraleZero ? 0.5 : 1)))
-
-      const historyRows = historyRes.data ?? []
-      if (historyRows.length >= 2) {
-        history = {
-          cashBalance: historyRows.map((h) => h.cash_balance),
-          approvalRating: historyRows.map((h) => h.approval_rating),
-          population: historyRows.map((h) => h.population),
-          dailyGdp: historyRows.map((h) => h.daily_gdp),
-          taxRate: historyRows.map((h) => h.tax_rate ?? 0),
-          politicalStability: historyRows.map((h) => h.political_stability ?? 0),
-          gdpPerCapita: historyRows.map((h) => (h.population > 0 ? h.daily_gdp / h.population : 0)),
-        }
-      }
 
       if (allianceMembershipRes.data) {
         const { data: allianceData } = await supabase.from('alliances').select('name, tag').eq('id', allianceMembershipRes.data.alliance_id).maybeSingle()
@@ -174,16 +163,17 @@ export default async function OverviewPage() {
   }
 
   const groupedBuildings = Object.values(
-    buildings.reduce<Record<string, { buildingType: BuildingType; count: number }>>((acc, b) => {
+    buildings.reduce<Record<string, { buildingType: BuildingType; count: number; totalLevel: number }>>((acc, b) => {
       const bt = catalog.find((c) => c.id === b.building_type_id)
       if (!bt) return acc
-      if (!acc[b.building_type_id]) acc[b.building_type_id] = { buildingType: bt, count: 0 }
+      if (!acc[b.building_type_id]) acc[b.building_type_id] = { buildingType: bt, count: 0, totalLevel: 0 }
       acc[b.building_type_id].count += 1
+      acc[b.building_type_id].totalLevel += b.level ?? 0
       return acc
     }, {})
   )
 
-  const gdpPerCapita = nation && nation.population > 0 ? nation.daily_gdp / nation.population : 0
+
 
   return (
     <div>
@@ -203,57 +193,30 @@ export default async function OverviewPage() {
               infrastructureIndex={infrastructureIndex}
               achievements={achievements}
               unlockedAchievements={unlockedAchievements}
+              trophies={trophies}
+              trophyDefs={trophyDefs}
             />
           ) : null}
 
           <div className={`${styles.panel} card`}>
             <div className={styles.buildingsCardTitle}>Infrastructure &amp; Buildings</div>
             <div className={styles.buildingsCardSub}>{buildings.length} building{buildings.length === 1 ? '' : 's'} owned</div>
-            <OwnedBuildingsList grouped={groupedBuildings} />
+            {nation ? <DashboardBuildingsList buildings={buildings} /> : null}
           </div>
         </div>
 
         <div className={styles.colCenter}>
-          <div className={`${styles.panel} card`}>
-            <h2 className={styles.panelTitle}>Strategic Overview</h2>
-            <div className={styles.statGrid}>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Cash Balance</span>
-                <span className={`${styles.statValue} mono`} style={{ color: 'var(--color-positive)' }}>{formatCash(nation?.cash_balance)}</span>
-                {history ? <Sparkline data={history.cashBalance} color="var(--color-positive)" /> : null}
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Approval Rating</span>
-                <span className={`${styles.statValue} mono`}>{formatPercent(nation?.approval_rating)}</span>
-                {history ? <Sparkline data={history.approvalRating} color="var(--color-accent)" /> : null}
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Daily GDP</span>
-                <span className={`${styles.statValue} mono`}>{formatCash(nation?.daily_gdp)}</span>
-                {history ? <Sparkline data={history.dailyGdp} color="var(--color-positive)" /> : null}
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Population</span>
-                <span className={`${styles.statValue} mono`}>{formatNumber(nation?.population)}</span>
-                {history ? <Sparkline data={history.population} color="var(--color-ink)" /> : null}
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>GDP / Capita</span>
-                <span className={`${styles.statValue} mono`}>${gdpPerCapita.toFixed(2)}</span>
-                {history ? <Sparkline data={history.gdpPerCapita} color="var(--color-accent)" /> : null}
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Tax Rate</span>
-                <span className={`${styles.statValue} mono`}>{formatPercent(taxRate)}</span>
-                {history ? <Sparkline data={history.taxRate} color="var(--color-accent)" /> : null}
-              </div>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Political Stability</span>
-                <span className={`${styles.statValue} mono`}>{formatPercent(politicalStability)}</span>
-                {history ? <Sparkline data={history.politicalStability} color="var(--color-positive)" /> : null}
-              </div>
-            </div>
-          </div>
+          {nation ? (
+            <StrategicOverviewPanel
+              cashBalance={nation.cash_balance}
+              approvalRating={nation.approval_rating}
+              dailyGdp={nation.daily_gdp}
+              population={nation.population}
+              taxRate={taxRate}
+              politicalStability={politicalStability}
+              history={historyRows}
+            />
+          ) : null}
 
           <WarehouseGrid stocks={stocks} />
 

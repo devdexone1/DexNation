@@ -24,7 +24,8 @@
     "guide": "Guide",
     "adminPanel": "Admin Panel",
     "signOut": "Sign out",
-    "nextDay": "Next Day"
+    "nextDay": "Next Day",
+    "globalMap": "Global Map"
   },
   "dossier": {
     "economicStatistics": "Economic Statistics",
