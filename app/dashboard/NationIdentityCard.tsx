@@ -1,5 +1,4 @@
 import FlagDisplay from '@/components/FlagDisplay'
-import FlagStand from '@/components/FlagStand'
 import AchievementBadge from '@/components/AchievementBadge'
 import TrophiesRow from './TrophiesRow'
 import { formatNationAge } from '@/lib/format'
@@ -11,6 +10,7 @@ export default function NationIdentityCard({
   countryNumber,
   leaderName,
   leaderPhotoUrl,
+  leaderPhotoFrame,
   createdAt,
   flagUrl,
   flagFrame,
@@ -25,6 +25,7 @@ export default function NationIdentityCard({
   countryNumber: number
   leaderName: string | null
   leaderPhotoUrl?: string | null
+  leaderPhotoFrame?: string
   createdAt: string
   flagUrl: string | null
   flagFrame: string
@@ -51,18 +52,18 @@ export default function NationIdentityCard({
         {leaderName ? `(${leaderName} - Leader)` : 'No leader name set'}
       </div>
 
-      <div className={styles.identityFlagWrap} style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 8 }}>
-        <FlagStand flagUrl={flagUrl} side="left" />
+      <div className={styles.identityFlagWrap} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <FlagDisplay flagUrl={flagUrl} frame={flagFrame} size="large" />
-        <FlagStand flagUrl={flagUrl} side="right" />
       </div>
 
       <div className={styles.identityMetaRow}>
         <div className={styles.identityMetaLabel}>Leader</div>
         <div className={styles.identityMetaValue} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {leaderPhotoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={leaderPhotoUrl} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }} />
+            <div className={`${styles.leaderPhotoWrap} ${styles[`leaderFrame-${leaderPhotoFrame ?? 'none'}`] ?? styles['leaderFrame-none']}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={leaderPhotoUrl} alt="" className={styles.leaderPhotoImg} />
+            </div>
           ) : null}
           {leaderName ?? '—'}
         </div>
@@ -70,19 +71,6 @@ export default function NationIdentityCard({
       <div className={styles.identityMetaRow}>
         <div className={styles.identityMetaLabel}>Founding Date</div>
         <div className={styles.identityMetaValue}>{formatNationAge(createdAt)} ago</div>
-      </div>
-
-      <div className={styles.honorBadgeRow}>
-        <div className={styles.honorBadge}>
-          <div className={styles.honorBadgeIcon}>🏆</div>
-          <div className={styles.honorBadgeValue}>{economicHealth}</div>
-          <div className={styles.honorBadgeLabel}>Economic Health Rating</div>
-        </div>
-        <div className={styles.honorBadge}>
-          <div className={styles.honorBadgeIcon}>🥈</div>
-          <div className={styles.honorBadgeValue}>{infrastructureIndex}</div>
-          <div className={styles.honorBadgeLabel}>Infrastructure Index</div>
-        </div>
       </div>
 
       {unlockedOnly.length > 0 ? (

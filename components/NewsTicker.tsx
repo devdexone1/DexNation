@@ -41,6 +41,7 @@ export default function NewsTicker({
 
   return (
     <div className={styles.bar}>
+      <span className={styles.newsLabel}>News</span>
       <div className={styles.tickerWrap}>
         {looped.length === 0 ? (
           <span className={styles.item}>No news right now.</span>

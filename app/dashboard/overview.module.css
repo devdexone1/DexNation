@@ -52,7 +52,7 @@
 }
 
 .statValuePositive {
-  color: #0a7a5c;
+  color: #34d399;
 }
 
 .panel {
@@ -237,8 +237,8 @@
 
 .dashboardGrid {
   display: grid;
-  grid-template-columns: 300px 1fr 300px;
-  gap: 16px;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 10px;
   align-items: start;
 }
 
@@ -246,13 +246,13 @@
 .colRight {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .colCenter {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -300,35 +300,51 @@
   margin-top: 1px;
 }
 
-.honorBadgeRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 14px 0;
+.leaderPhotoWrap {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.honorBadge {
-  padding: 10px;
-  background: var(--color-surface-sunken);
-  border-radius: var(--radius-sm);
-  text-align: center;
+.leaderPhotoImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
-.honorBadgeIcon {
-  font-size: 18px;
+.leaderFrame-none .leaderPhotoImg {
+  border: 1px solid var(--color-border-strong);
 }
 
-.honorBadgeValue {
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 2px;
+.leaderFrame-classic .leaderPhotoImg {
+  border: 2px double #f4d78a;
+  box-shadow: 0 0 0 1px #7a5a06, 0 0 6px rgba(184, 134, 11, 0.5);
 }
 
-.honorBadgeLabel {
-  font-size: 9.5px;
-  color: var(--color-ink-faint);
-  line-height: 1.3;
-  margin-top: 2px;
+.leaderFrame-modern .leaderPhotoImg {
+  border: 1px solid var(--panel-dark-base);
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 6px rgba(217, 107, 39, 0.45);
+}
+
+.leaderFrame-ornate .leaderPhotoImg {
+  border: 2px solid #b98a52;
+  box-shadow: 0 0 0 1px #5c3f22, 0 0 6px rgba(140, 98, 57, 0.45);
+}
+
+.leaderFrame-forest .leaderPhotoImg {
+  border: 2px solid #6fbf82;
+  box-shadow: 0 0 0 1px #0d1f13, 0 0 6px rgba(74, 138, 92, 0.5);
+}
+
+.leaderFrame-political .leaderPhotoImg {
+  border: 2px solid #24406b;
+  box-shadow: 0 0 0 1px #d4af37, 0 0 6px rgba(35, 64, 110, 0.5);
 }
 
 .honorsSectionTitle {
@@ -359,7 +375,32 @@
   margin-bottom: 10px;
 }
 
-/* ===== Warehouse Grid (center) ===== */
+/* ===== Warehouse Grid (center) — dark navy, matches Strategic Overview ===== */
+
+.warehousePanel {
+  padding: 22px 24px;
+  background: linear-gradient(165deg, var(--panel-dark-elevated) 0%, var(--panel-dark-base) 100%);
+  border-radius: var(--radius-md);
+}
+
+.warehousePanelTitle {
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+}
+
+.warehousePanelSubtitle {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 18px;
+}
+
+.warehouseEmpty {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
 
 .warehouseGrid {
   display: grid;
@@ -369,8 +410,9 @@
 
 .commodityCard {
   padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--panel-dark-border);
+  border-radius: var(--radius-lg);
 }
 
 .commodityHeader {
@@ -383,20 +425,21 @@
 .commodityIcon {
   width: 18px;
   height: 18px;
-  color: var(--color-ink-soft);
+  color: rgba(255, 255, 255, 0.65);
   flex-shrink: 0;
 }
 
 .commodityName {
   font-size: 12px;
   font-weight: 600;
+  color: #ffffff;
 }
 
 .commodityAmount {
   display: flex;
   align-items: center;
   font-size: 11px;
-  color: var(--color-ink-soft);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 6px;
   font-variant-numeric: tabular-nums;
 }
@@ -404,7 +447,7 @@
 .commodityBarTrack {
   height: 5px;
   border-radius: 999px;
-  background: var(--color-surface-sunken);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
@@ -418,6 +461,7 @@
   font-size: 10.5px;
   font-weight: 700;
   margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== Composite + Geopolitics Card (right top) ===== */
@@ -478,7 +522,7 @@
 
 .warPillPeace {
   background: var(--color-positive-soft);
-  color: #0a7a5c;
+  color: #34d399;
 }
 
 /* ===== Alerts Card (right bottom) ===== */
@@ -555,6 +599,78 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1.6fr;
   gap: 10px;
+}
+
+/* ===== Strategic Overview: full dark panel, matches reference design ===== */
+
+.strategicPanel {
+  padding: 22px;
+  background: linear-gradient(165deg, var(--panel-dark-elevated) 0%, var(--panel-dark-base) 100%);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card, 0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.strategicTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.strategicPeriodSelect {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.strategicGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 1.7fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.strategicChartCell {
+  grid-row: 1 / 3;
+  grid-column: 5;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--panel-dark-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.strategicCell {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--panel-dark-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.strategicCellLabel {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.strategicCellValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.strategicCellValue--positive {
+  color: #34d399;
 }
 
 .growthChartCard {

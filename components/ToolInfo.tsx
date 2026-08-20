@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './ToolInfo.module.css'
 
-export default function ToolInfo({ title, children }: { title: string; children: React.ReactNode }) {
+export default function ToolInfo({ title, children, dark = false }: { title: string; children: React.ReactNode; dark?: boolean }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -18,7 +18,12 @@ export default function ToolInfo({ title, children }: { title: string; children:
 
   return (
     <span className={styles.wrap} ref={ref}>
-      <button type="button" className={styles.icon} onClick={() => setOpen((v) => !v)} aria-label={`About ${title}`}>
+      <button
+        type="button"
+        className={`${styles.icon} ${dark ? styles['icon--dark'] : ''}`}
+        onClick={() => setOpen((v) => !v)}
+        aria-label={`About ${title}`}
+      >
         !
       </button>
       {open ? (

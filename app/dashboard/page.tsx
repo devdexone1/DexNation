@@ -186,6 +186,8 @@ export default async function OverviewPage() {
               name={nation.name}
               countryNumber={nation.country_number}
               leaderName={nation.leader_name}
+              leaderPhotoUrl={nation.leader_photo_url}
+              leaderPhotoFrame={nation.leader_photo_frame}
               createdAt={nation.created_at}
               flagUrl={nation.flag_url}
               flagFrame={nation.flag_frame}

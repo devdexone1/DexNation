@@ -93,3 +93,34 @@ export async function updateNationFlagAction(
   await logAudit(user.id, nationId, ip, 'ACTION_SUCCESS', { action: 'update_nation_flag', flagFrame })
   return { success: true }
 }
+
+export async function updateLeaderPhotoAction(
+  nationId: string,
+  photoUrl: string,
+  photoFrame: string
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const ip = await getClientIp()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Session not found. Please sign in again.' }
+
+  const allowed = await checkRateLimit(PROFILE_RATE_LIMIT_KEY(user.id), 5, 0.05)
+  if (!allowed) {
+    await logAudit(user.id, nationId, ip, 'RATE_LIMIT_EXCEEDED', { action: 'update_leader_photo' })
+    return { error: 'Too many update attempts — please slow down.' }
+  }
+
+  const { error } = await supabase.rpc('update_leader_photo', {
+    p_nation_id: nationId,
+    p_photo_url: photoUrl,
+    p_photo_frame: photoFrame,
+  })
+
+  if (error) {
+    await logAudit(user.id, nationId, ip, 'ACTION_FAILED', { action: 'update_leader_photo', error: error.message })
+    return { error: error.message }
+  }
+
+  await logAudit(user.id, nationId, ip, 'ACTION_SUCCESS', { action: 'update_leader_photo', photoFrame })
+  return { success: true }
+}

@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Sparkline from '@/components/Sparkline'
-import AreaChart from '@/components/AreaChart'
-import { formatCash, formatNumber, formatPercent } from '@/lib/format'
+import TrendComparisonChart from '@/components/TrendComparisonChart'
+import { formatCash, formatNumber, formatPercent, getTrendColor } from '@/lib/format'
 import type { NationStatsHistory } from '@/types/database'
 import styles from './overview.module.css'
 
@@ -14,21 +14,20 @@ const PERIODS = [
   { label: '1 Year trend', value: 365 },
 ] as const
 
-function computeGrowthScore(rows: NationStatsHistory[]): number[] {
+// Picks ~6 evenly spaced day labels out of the sliced history window,
+// instead of one label per data point (matches the reference chart).
+function pickDayLabels(rows: NationStatsHistory[], count = 6): string[] {
   if (rows.length === 0) return []
-  const gdps = rows.map((r) => r.daily_gdp)
-  const pops = rows.map((r) => r.population)
-  const gdpMin = Math.min(...gdps)
-  const gdpMax = Math.max(...gdps)
-  const popMin = Math.min(...pops)
-  const popMax = Math.max(...pops)
-
-  return rows.map((r) => {
-    const normGdp = gdpMax > gdpMin ? (r.daily_gdp - gdpMin) / (gdpMax - gdpMin) : 0.5
-    const normPop = popMax > popMin ? (r.population - popMin) / (popMax - popMin) : 0.5
-    const normAr = r.approval_rating / 100
-    return ((normGdp + normPop + normAr) / 3) * 100
-  })
+  if (rows.length <= count) {
+    return rows.map((r) => new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
+  }
+  const step = (rows.length - 1) / (count - 1)
+  const labels: string[] = []
+  for (let i = 0; i < count; i++) {
+    const idx = Math.round(i * step)
+    labels.push(new Date(rows[idx].created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
+  }
+  return labels
 }
 
 export default function StrategicOverviewPanel({
@@ -53,15 +52,35 @@ export default function StrategicOverviewPanel({
   // it's a read-only display filter, not something that mutates data.
   const [period, setPeriod] = useState<number>(15)
   const sliced = history.slice(-period)
-  const growthScores = computeGrowthScore(sliced)
+
+  const cashSeries = sliced.map((h) => h.cash_balance)
+  const approvalSeries = sliced.map((h) => h.approval_rating)
+  const gdpSeries = sliced.map((h) => h.daily_gdp)
+  const populationSeries = sliced.map((h) => h.population)
+  const gdpPerCapitaSeries = sliced.map((h) => (h.population > 0 ? h.daily_gdp / h.population : 0))
+  const taxRateSeries = sliced
+    .map((h) => h.tax_rate)
+    .filter((v): v is number => v !== null && v !== undefined)
+  const politicalStabilitySeries = sliced
+    .map((h) => h.political_stability)
+    .filter((v): v is number => v !== null && v !== undefined)
+
+  const gdpGrowthSeries = (() => {
+    if (gdpSeries.length === 0) return []
+    const first = gdpSeries[0]
+    if (first === 0) return gdpSeries.map(() => 0)
+    return gdpSeries.map((v) => ((v - first) / Math.abs(first)) * 100)
+  })()
+
   const gdpPerCapita = population > 0 ? dailyGdp / population : 0
+  const dayLabels = pickDayLabels(sliced)
 
   return (
-    <div className={`${styles.panel} card`}>
+    <div className={styles.strategicPanel}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 className={styles.panelTitle}>Strategic Overview</h2>
+        <h2 className={styles.strategicTitle}>Strategic Overview</h2>
         <select
-          className={`select ${styles.periodSelect}`}
+          className={styles.strategicPeriodSelect}
           value={period}
           onChange={(e) => setPeriod(Number(e.target.value))}
         >
@@ -71,49 +90,48 @@ export default function StrategicOverviewPanel({
         </select>
       </div>
 
-      <div className={styles.overviewGridTop}>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Cash Balance</span>
-          <span className={`${styles.statValue} mono`} style={{ color: 'var(--color-positive)' }}>{formatCash(cashBalance)}</span>
-          {sliced.length >= 2 ? <Sparkline data={sliced.map((h) => h.cash_balance)} color="var(--color-positive)" /> : null}
+      <div className={styles.strategicGrid}>
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>Cash Balance</span>
+                    <span className={`${styles.strategicCellValue} ${styles['strategicCellValue--positive']} mono`}>{formatCash(cashBalance)}</span>
+          {cashSeries.length >= 2 ? <Sparkline data={cashSeries} color={getTrendColor(cashSeries)} /> : null}
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Approval Rating</span>
-          <span className={`${styles.statValue} mono`}>{formatPercent(approvalRating)}</span>
-          {sliced.length >= 2 ? <Sparkline data={sliced.map((h) => h.approval_rating)} color="var(--color-accent)" /> : null}
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>Approval Rating</span>
+          <span className={`${styles.strategicCellValue} mono`}>{formatPercent(approvalRating)}</span>
+          {approvalSeries.length >= 2 ? <Sparkline data={approvalSeries} color={getTrendColor(approvalSeries)} /> : null}
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Daily GDP</span>
-          <span className={`${styles.statValue} mono`}>{formatCash(dailyGdp)}</span>
-          {sliced.length >= 2 ? <Sparkline data={sliced.map((h) => h.daily_gdp)} color="var(--color-positive)" /> : null}
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>Daily GDP</span>
+          <span className={`${styles.strategicCellValue} mono`}>{formatCash(dailyGdp)}</span>
+          {gdpSeries.length >= 2 ? <Sparkline data={gdpSeries} color={getTrendColor(gdpSeries)} /> : null}
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Population</span>
-          <span className={`${styles.statValue} mono`}>{formatNumber(population)}</span>
-          {sliced.length >= 2 ? <Sparkline data={sliced.map((h) => h.population)} color="var(--color-ink)" /> : null}
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>Population</span>
+          <span className={`${styles.strategicCellValue} mono`}>{formatNumber(population)}</span>
+          {populationSeries.length >= 2 ? <Sparkline data={populationSeries} color={getTrendColor(populationSeries)} /> : null}
         </div>
-      </div>
 
-      <div className={styles.overviewGridBottom}>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>GDP / Capita</span>
-          <span className={`${styles.statValue} mono`}>${gdpPerCapita.toFixed(2)}</span>
+        <div className={styles.strategicChartCell}>
+          <TrendComparisonChart gdpData={gdpGrowthSeries} approvalData={approvalSeries} dayLabels={dayLabels} />
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Tax Rate</span>
-          <span className={`${styles.statValue} mono`}>{formatPercent(taxRate)}</span>
+
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>GDP / Capita</span>
+          <span className={`${styles.strategicCellValue} mono`}>${gdpPerCapita.toFixed(2)}</span>
+          {gdpPerCapitaSeries.length >= 2 ? <Sparkline data={gdpPerCapitaSeries} color={getTrendColor(gdpPerCapitaSeries)} /> : null}
         </div>
-        <div className={styles.statCard}>
-          <span className={styles.statLabel}>Political Stability</span>
-          <span className={`${styles.statValue} mono`}>{formatPercent(politicalStability)}</span>
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>Tax Rate</span>
+          <span className={`${styles.strategicCellValue} mono`}>{formatPercent(taxRate)}</span>
+          {taxRateSeries.length >= 2 ? <Sparkline data={taxRateSeries} color={getTrendColor(taxRateSeries)} /> : null}
         </div>
-        <div className={styles.growthChartCard}>
-          <div className={styles.growthChartLabel}>Nation Growth Score</div>
-          {growthScores.length >= 2 ? (
-            <AreaChart data={growthScores} />
-          ) : (
-            <div className={styles.emptyState} style={{ fontSize: 11 }}>Not enough history yet.</div>
-          )}
+        <div className={styles.strategicCell}>
+          <span className={styles.strategicCellLabel}>Political Stability</span>
+          <span className={`${styles.strategicCellValue} mono`}>{formatPercent(politicalStability)}</span>
+          {politicalStabilitySeries.length >= 2 ? (
+            <Sparkline data={politicalStabilitySeries} color={getTrendColor(politicalStabilitySeries)} />
+          ) : null}
         </div>
       </div>
     </div>

@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --color-bg: #fbf9f5;
-  --color-surface: #ffffff;
-  --color-surface-sunken: #f4f1ea;
+  --color-bg: #121417;
+  --color-surface: #1c2635;
+  --color-surface-sunken: #0b0d10;
 
-  --color-ink: #0f172a;
-  --color-ink-soft: rgba(15, 23, 42, 0.64);
-  --color-ink-faint: rgba(15, 23, 42, 0.4);
+  --color-ink: #f4f6f8;
+  --color-ink-soft: rgba(244, 246, 248, 0.66);
+  --color-ink-faint: rgba(244, 246, 248, 0.42);
 
-  --color-border: rgba(15, 23, 42, 0.12);
-  --color-border-strong: rgba(15, 23, 42, 0.24);
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-border-strong: rgba(255, 255, 255, 0.22);
 
   --color-accent: #d96b27;
   --color-accent-ink: #fffaf5;
@@ -21,17 +21,30 @@
   --color-positive: #10b981;
   --color-positive-soft: rgba(16, 185, 129, 0.1);
 
-  --color-negative: #be3a34;
-  --color-negative-soft: rgba(190, 58, 52, 0.1);
+  --color-negative: #f27066;
+  --color-negative-soft: rgba(242, 112, 102, 0.14);
 
   --color-warning: #c98a1f;
   --color-warning-soft: rgba(201, 138, 31, 0.1);
 
+  --color-info: #2563eb;
+  --color-info-soft: rgba(37, 99, 235, 0.1);
+
+  --panel-dark-base: #0d1526;
+  --panel-dark-elevated: #17233e;
+  --panel-dark-border: rgba(255, 255, 255, 0.07);
+
   --radius-sm: 3px;
   --radius-md: 6px;
+  --radius-lg: 14px;
 
   --sidebar-width: 248px;
   --topbar-height: 64px;
+
+  /* Memaksa browser render native widget (popup <select>, scrollbar, dll)
+     pakai dark UI, bukan default terang OS — ini akar penyebab dropdown
+     "30 Day trend" jadi putih-di-atas-putih. */
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -83,13 +96,22 @@ button, input, select { font-family: inherit; font-size: inherit; color: inherit
 }
 .input:focus, .select:focus { border-color: var(--color-ink); }
 
+/* Jaga-jaga untuk semua <select> di app (termasuk yang pakai class
+   CSS-module sendiri, bukan class global .select), kalau color-scheme
+   tidak sepenuhnya didukung browser/OS tertentu. */
+select { color-scheme: dark; }
+option {
+  background-color: var(--panel-dark-elevated);
+  color: var(--color-ink);
+}
+
 .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 
 .badge {
   display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;
   font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
 }
-.badge--positive { background: var(--color-positive-soft); color: #0a7a5c; }
+.badge--positive { background: var(--color-positive-soft); color: #34d399; }
 .badge--accent { background: var(--color-accent-soft); color: var(--color-accent); }
 .badge--neutral { background: var(--color-surface-sunken); color: var(--color-ink-soft); }
 

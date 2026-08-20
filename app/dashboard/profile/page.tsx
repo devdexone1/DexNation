@@ -167,8 +167,13 @@ export default async function ProfilePage() {
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Leader Photo</h2>
-        {nation && user ? (
-          <LeaderPhotoUploadForm userId={user.id} nationId={nation.id} currentPhotoUrl={nation.leader_photo_url} />
+                {nation && user ? (
+          <LeaderPhotoUploadForm
+            userId={user.id}
+            nationId={nation.id}
+            currentPhotoUrl={nation.leader_photo_url}
+            currentFrame={nation.leader_photo_frame}
+          />
         ) : null}
       </div>
       

@@ -3,19 +3,24 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { updateLeaderPhotoAction } from './actions'
+import { FLAG_FRAMES } from '@/types/database'
 import styles from './profile.module.css'
 
 export default function LeaderPhotoUploadForm({
   userId,
   nationId,
   currentPhotoUrl,
+  currentFrame,
 }: {
   userId: string
   nationId: string
   currentPhotoUrl: string | null
+  currentFrame: string
 }) {
   const router = useRouter()
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentPhotoUrl)
+  const [frame, setFrame] = useState(currentFrame)
   const [file, setFile] = useState<File | null>(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -43,32 +48,33 @@ export default function LeaderPhotoUploadForm({
     startTransition(async () => {
       try {
         const supabase = createClient()
-        if (!file) {
+        let newUrl = currentPhotoUrl
+
+        if (file) {
+          const ext = file.name.split('.').pop()
+          const path = `${userId}/leader.${ext}`
+
+          const { error: uploadError } = await supabase.storage
+            .from('leader-photos')
+            .upload(path, file, { upsert: true, cacheControl: '3600' })
+
+          if (uploadError) {
+            setError(uploadError.message)
+            return
+          }
+
+          const { data: publicUrlData } = supabase.storage.from('leader-photos').getPublicUrl(path)
+          newUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
+        }
+
+        if (!newUrl) {
           setError('Choose a photo first.')
           return
         }
 
-        const ext = file.name.split('.').pop()
-        const path = `${userId}/leader.${ext}`
-
-        const { error: uploadError } = await supabase.storage
-          .from('leader-photos')
-          .upload(path, file, { upsert: true, cacheControl: '3600' })
-
-        if (uploadError) {
-          setError(uploadError.message)
-          return
-        }
-
-        const { data: publicUrlData } = supabase.storage.from('leader-photos').getPublicUrl(path)
-        const newUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`
-
-        const { error: rpcError } = await supabase.rpc('update_leader_photo', {
-          p_nation_id: nationId,
-          p_photo_url: newUrl,
-        })
-        if (rpcError) {
-          setError(rpcError.message)
+        const result = await updateLeaderPhotoAction(nationId, newUrl, frame)
+        if (result.error) {
+          setError(result.error)
           return
         }
 
@@ -81,20 +87,53 @@ export default function LeaderPhotoUploadForm({
     })
   }
 
+  const frameClass = styles[`leaderFrame-${frame}`] ?? styles['leaderFrame-none']
+
   return (
     <div className={`${styles.panel} card`}>
-      <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-        <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', background: 'var(--color-surface-sunken)', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div className={`${styles.leaderPhotoPreviewWrap} ${frameClass}`}>
           {previewUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={previewUrl} alt="Leader" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={previewUrl} alt="Leader" className={styles.leaderPhotoPreviewImg} />
           ) : null}
         </div>
-        <div>
-          <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFileChange} />
+
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <div className={styles.infoRow} style={{ border: 'none', padding: '0 0 10px' }}>
+            <label className="field__label" htmlFor="leader-photo-file">
+              Upload Leader Photo (PNG/JPEG/WebP, max 2MB)
+            </label>
+          </div>
+          <input id="leader-photo-file" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFileChange} />
+
+          <div style={{ marginTop: 16 }}>
+            <label className="field__label">Frame Style</label>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+              {FLAG_FRAMES.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`btn ${frame === f.id ? 'btn--primary' : 'btn--outline'}`}
+                  style={{ padding: '8px 14px', fontSize: 12.5 }}
+                  onClick={() => setFrame(f.id)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {error ? <div className={styles.error}>{error}</div> : null}
           {success ? <div className={styles.success}>{success}</div> : null}
-          <button type="button" className="btn btn--primary" style={{ marginTop: 8 }} onClick={handleSave} disabled={isPending || !file}>
+
+          <button
+            type="button"
+            className="btn btn--primary"
+            style={{ marginTop: 16 }}
+            onClick={handleSave}
+            disabled={isPending}
+          >
             {isPending ? 'Saving…' : 'Save Photo'}
           </button>
         </div>

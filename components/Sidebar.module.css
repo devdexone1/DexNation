@@ -16,7 +16,12 @@
 
 .nationName { padding: 0 8px; margin-bottom: 24px; font-family: var(--font-mono); font-size: 11px; color: #8a8a8a; letter-spacing: 0.04em; }
 
-.nav { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
+.nav {
+  display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* legacy Edge/IE */
+}
+.nav::-webkit-scrollbar { display: none; } /* Chrome, Safari, Edge baru */
 
 .navGroup { margin-bottom: 4px; }
 .navGroupLabel { padding: 14px 12px 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6b6b6b; }

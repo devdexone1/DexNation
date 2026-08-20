@@ -5,26 +5,27 @@ import type { NationStock } from '@/types/database'
 import styles from './overview.module.css'
 
 function barColor(pct: number): string {
-  if (pct >= 90) return 'var(--color-negative)'
-  if (pct >= 70) return 'var(--color-warning)'
-  return 'var(--color-positive)'
+  if (pct < 25) return 'var(--color-negative)'
+  if (pct < 50) return 'var(--color-warning)'
+  if (pct < 75) return 'var(--color-positive)'
+  return 'var(--color-info)'
 }
 
 export default function WarehouseGrid({ stocks }: { stocks: NationStock[] }) {
   return (
-    <div className={`${styles.panel} card`}>
-      <h2 className={styles.panelTitle}>
+    <div className={styles.warehousePanel}>
+      <h2 className={styles.warehousePanelTitle}>
         National Warehouse
-        <ToolInfo title="How to read this">
+        <ToolInfo title="How to read this" dark>
           Each card shows: <strong>Current Stock</strong> vs <strong>Maximum Capacity</strong>.
-          Bar color: green = plenty of room, yellow = 70%+ full, red = 90%+ full
-          (production pauses automatically at 100%).
+          Bar color: red = under 25% (low stock), orange = 25–50%, green = 50–75%,
+          blue = 75% or higher (well stocked).
         </ToolInfo>
       </h2>
-      <p className={styles.panelSubtitle}>All commodity stock vs. warehouse capacity.</p>
+      <p className={styles.warehousePanelSubtitle}>All commodity stock vs. warehouse capacity.</p>
 
       {stocks.length === 0 ? (
-        <div className={styles.empty}>No stock data yet.</div>
+        <div className={styles.warehouseEmpty}>No stock data yet.</div>
       ) : (
         <div className={styles.warehouseGrid}>
           {stocks.map((stock) => {

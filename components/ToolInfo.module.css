@@ -26,13 +26,24 @@
   color: var(--color-accent);
 }
 
+.icon--dark {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.icon--dark:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .popover {
   position: absolute;
   top: 22px;
   left: 0;
   width: 240px;
-  background: var(--color-ink);
-  color: #fff;
+  background: linear-gradient(165deg, var(--panel-dark-elevated) 0%, var(--panel-dark-base) 100%);
+  border: 1px solid var(--panel-dark-border);
+  color: var(--color-ink);
   padding: 10px 12px;
   border-radius: var(--radius-sm);
   font-size: 11.5px;

@@ -8,6 +8,7 @@ export interface Nation {
   name: string
   leader_name: string | null
   leader_photo_url: string | null
+  leader_photo_frame: string
   country_number: number
   continent_id: string
   cash_balance: number
@@ -16,7 +17,7 @@ export interface Nation {
   daily_gdp: number
   research_points: number
   flag_url: string | null
-  flag_frame: 'none' | 'classic' | 'modern' | 'ornate'
+  flag_frame: 'none' | 'classic' | 'modern' | 'ornate' | 'forest' | 'political'
   created_at: string
 }
 
@@ -352,6 +353,8 @@ export const FLAG_FRAMES = [
   { id: 'classic', label: 'Classic Gold' },
   { id: 'modern', label: 'Modern Slate' },
   { id: 'ornate', label: 'Ornate Bronze' },
+  { id: 'forest', label: 'Forest Green' },
+  { id: 'political', label: 'Political Navy' },
 ] as const
 
 export interface ChatMessage {
@@ -420,6 +423,8 @@ export interface NationStatsHistory {
   approval_rating: number
   population: number
   daily_gdp: number
+  tax_rate?: number | null
+  political_stability?: number | null
   recorded_tick: number
   created_at: string
 }

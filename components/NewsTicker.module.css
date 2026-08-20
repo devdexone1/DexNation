@@ -1,40 +1,97 @@
-.wrap {
-  overflow: hidden;
-  background: var(--color-ink);
-  color: #fff;
+.bar {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: 38px;
+  background: linear-gradient(165deg, var(--panel-dark-elevated) 0%, var(--panel-dark-base) 100%);
   border-radius: var(--radius-sm);
   margin-bottom: 16px;
-  padding: 10px 0;
-  position: relative;
+  overflow: hidden; /* <-- fix utamanya: mengunci teks agar tak pernah bocor ke sidebar */
 }
 
-.label {
+/* Garis dekorasi diagonal (hazard stripe) di atas & bawah — kesan "breaking news" */
+.bar::before,
+.bar::after {
+  content: '';
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-  padding: 0 12px;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-accent) 0px,
+    var(--color-accent) 8px,
+    #8f3f14 8px,
+    #8f3f14 16px
+  );
+  z-index: 3;
+}
+.bar::before { top: 0; }
+.bar::after { bottom: 0; }
+
+/* Kotak "NEWS" tetap di kiri — teks berjalan mulai persis di sebelahnya */
+.newsLabel {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  font-size: 10px;
-  font-weight: 700;
+  padding: 0 20px 0 16px;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  position: relative;
   z-index: 2;
+}
+
+.tickerWrap {
+  flex: 1;
+  min-width: 0; /* wajib, supaya flex child ini benar-benar bisa "dipotong" bukan malah memperlebar baris */
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .track {
   display: flex;
+  align-items: center;
   white-space: nowrap;
   animation: scrollLeft 30s linear infinite;
-  padding-left: 90px;
 }
 
 .item {
   padding: 0 40px;
   font-size: 12.5px;
+  color: var(--color-ink);
+}
+
+.meta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+  border-left: 1px solid var(--panel-dark-border);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.dayLabel {
+  font-size: 11px;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+.nextTickPill {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  white-space: nowrap;
 }
 
 @keyframes scrollLeft {
