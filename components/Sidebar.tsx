@@ -73,9 +73,32 @@ const icons: Record<string, React.ReactNode> = {
       />
     </svg>
   ),
+    admin: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path
+        d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"
+        strokeLinejoin="round"
+      />
+      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
 }
 
-const NAV_GROUPS = [
+type NavItem = {
+  to: string
+  labelKey: string
+  icon: string
+  ready: boolean
+  exact?: boolean
+  adminOnly?: boolean
+}
+
+type NavGroup = {
+  label: string
+  items: NavItem[]
+}
+
+const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Main',
     items: [
@@ -113,6 +136,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/dashboard/statistics', labelKey: 'sidebar.statistics', icon: 'research', ready: true },
       { to: '/dashboard/settings', labelKey: 'sidebar.settings', icon: 'profile', ready: true },
+      { to: '/dashboard/admin', labelKey: 'sidebar.adminPanel', icon: 'admin', ready: true, adminOnly: true },
     ],
   },
 ]
@@ -152,7 +176,9 @@ export default function Sidebar({
         {NAV_GROUPS.map((group) => (
           <div className={styles.navGroup} key={group.label}>
             <div className={styles.navGroupLabel}>{group.label}</div>
-            {group.items.map((item) => {
+            {group.items
+              .filter((item) => !('adminOnly' in item && item.adminOnly) || isAdmin)
+              .map((item) => {
               const isActive = item.exact ? pathname === item.to : pathname.startsWith(item.to)
               return (
                 <Link

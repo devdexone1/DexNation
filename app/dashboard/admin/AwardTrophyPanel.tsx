@@ -2,36 +2,25 @@
 
 import { useEffect, useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { editNationStatAction } from './actions'
-import ConfirmButton from '@/components/ConfirmButton'
 import { useDebounce } from '@/lib/useDebounce'
-import { formatCash, formatNumber } from '@/lib/format'
+import ConfirmButton from '@/components/ConfirmButton'
+import type { NationalTrophy } from '@/types/database'
+import { awardTrophyAction } from './actions'
 import styles from './admin.module.css'
 
 interface NationResult {
   id: string
   name: string
   country_number: number
-  cash_balance: number
-  population: number
-  daily_gdp: number
-  research_points: number
 }
 
-const EDITABLE_FIELDS = [
-  { key: 'cash_balance', label: 'Cash Balance' },
-  { key: 'population', label: 'Population' },
-  { key: 'daily_gdp', label: 'Daily GDP' },
-  { key: 'research_points', label: 'Research Points' },
-] as const
-
-export default function AdminStatEditor() {
+export default function AwardTrophyPanel({ trophyDefs }: { trophyDefs: NationalTrophy[] }) {
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query, 1000)
   const [results, setResults] = useState<NationResult[]>([])
   const [selected, setSelected] = useState<NationResult | null>(null)
-  const [field, setField] = useState<(typeof EDITABLE_FIELDS)[number]['key']>('cash_balance')
-  const [newValue, setNewValue] = useState('')
+  const [trophyId, setTrophyId] = useState(trophyDefs[0]?.id ?? '')
+  const [note, setNote] = useState('')
   const [status, setStatus] = useState('')
   const [isPending, startTransition] = useTransition()
 
@@ -46,7 +35,7 @@ export default function AdminStatEditor() {
       const supabase = createClient()
       const { data } = await supabase
         .from('nations')
-        .select('id, name, country_number, cash_balance, population, daily_gdp, research_points')
+        .select('id, name, country_number')
         .ilike('name', `%${trimmed}%`)
         .limit(10)
       if (!cancelled) setResults(data ?? [])
@@ -57,19 +46,12 @@ export default function AdminStatEditor() {
     }
   }, [debouncedQuery])
 
-  function handleApply() {
+  function handleAward() {
     if (!selected) return
-    const val = Number(newValue)
-    if (!Number.isFinite(val) || val < 0) {
-      setStatus('Enter a valid non-negative number.')
-      return
-    }
+    setStatus('')
     startTransition(async () => {
-      const result = await editNationStatAction(selected.id, field, val)
-      setStatus(result.error ?? `Updated ${field} to ${val}.`)
-      if (!result.error) {
-        setSelected({ ...selected, [field]: val })
-      }
+      const result = await awardTrophyAction(selected.id, trophyId, note)
+      setStatus(result.error ?? `Trophy awarded to ${selected.name}.`)
     })
   }
 
@@ -90,44 +72,41 @@ export default function AdminStatEditor() {
         <div style={{ marginBottom: 10 }}>
           {results.map((n) => (
             <div key={n.id} className={styles.playerRow} style={{ cursor: 'pointer' }} onClick={() => setSelected(n)}>
-              <span>{n.name} #{n.country_number}</span>
-              <span className="mono" style={{ fontSize: 11, color: 'var(--color-ink-faint)' }}>{formatCash(n.cash_balance)}</span>
+              <span>
+                {n.name} #{n.country_number}
+              </span>
             </div>
           ))}
         </div>
       ) : null}
 
       {selected ? (
-        <div style={{ padding: '12px 0', borderTop: '1px solid var(--color-border)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>
-            Editing: {selected.name} #{selected.country_number}
-          </div>
+        <div style={{ paddingTop: 10, borderTop: '1px solid var(--color-border)' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Awarding to: {selected.name}</div>
 
           <div className={styles.formInline} style={{ marginBottom: 10, flexWrap: 'wrap' }}>
-            <select className="select" value={field} onChange={(e) => setField(e.target.value as typeof field)}>
-              {EDITABLE_FIELDS.map((f) => (
-                <option key={f.key} value={f.key}>
-                  {f.label} (current: {formatNumber(selected[f.key])})
+            <select className="select" value={trophyId} onChange={(e) => setTrophyId(e.target.value)}>
+              {trophyDefs.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.icon} {d.title}
                 </option>
               ))}
             </select>
             <input
               className="input"
-              type="number"
-              min={0}
-              placeholder="New value"
-              value={newValue}
-              onChange={(e) => setNewValue(e.target.value)}
-              style={{ maxWidth: 160 }}
+              placeholder="Note (optional, e.g. 'Q1 2026 Economic Cup')"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              style={{ maxWidth: 240 }}
             />
           </div>
 
           <ConfirmButton
-            label="Apply Change"
-            confirmLabel="Confirm — This Changes Real Game Data"
-            onConfirm={handleApply}
+            label="Award Trophy"
+            confirmLabel="Confirm Award"
+            onConfirm={handleAward}
             className="btn btn--primary"
-            disabled={isPending || !newValue}
+            disabled={isPending}
           />
 
           {status ? <div style={{ fontSize: 12, marginTop: 8 }}>{status}</div> : null}

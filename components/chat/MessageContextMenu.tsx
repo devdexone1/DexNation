@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { reportChatMessageAction, deleteChatMessageAction } from '@/app/dashboard/chat-actions'
-import { mutePlayerAction, banPlayerAction } from '@/app/admin/actions'
+import { mutePlayerAction, banPlayerAction } from '@/app/dashboard/admin/actions'
 import ConfirmButton from '@/components/ConfirmButton'
 import styles from './chat-widget.module.css'
 

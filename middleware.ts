@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
   const isLoginRoute = path === '/login'
   const isCreateNationRoute = path.startsWith('/create-nation')
   const isDashboardRoute = path.startsWith('/dashboard')
-  const isAdminRoute = path.startsWith('/admin')
+  const isAdminRoute = path.startsWith('/dashboard/admin')
   const isBannedRoute = path.startsWith('/banned')
   const isRoot = path === '/'
   const isAuthCallback = path.startsWith('/auth/callback')
