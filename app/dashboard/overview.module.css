@@ -237,10 +237,11 @@
 
 .dashboardGrid {
   display: grid;
-  grid-template-columns: 280px 1fr 280px;
-  gap: 10px;
+  grid-template-columns: 320px 1fr 300px;
+  gap: 16px;
   align-items: start;
 }
+
 
 .colLeft,
 .colRight {
@@ -269,9 +270,10 @@
 }
 
 .identityName {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
 }
+
 
 .identitySubline {
   font-size: 12px;
@@ -295,20 +297,21 @@
 }
 
 .identityMetaValue {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   margin-top: 1px;
 }
 
 .leaderPhotoWrap {
-  width: 24px;
-  height: 24px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 
 .leaderPhotoImg {
   width: 100%;
@@ -322,30 +325,30 @@
   border: 1px solid var(--color-border-strong);
 }
 
+
 .leaderFrame-classic .leaderPhotoImg {
-  border: 2px double #f4d78a;
-  box-shadow: 0 0 0 1px #7a5a06, 0 0 6px rgba(184, 134, 11, 0.5);
+  border: 3px double #f4d78a;
+  box-shadow: 0 0 0 1px #7a5a06, 0 0 8px rgba(184, 134, 11, 0.5);
 }
+
 
 .leaderFrame-modern .leaderPhotoImg {
   border: 1px solid var(--panel-dark-base);
-  box-shadow: 0 0 0 2px var(--color-accent), 0 0 6px rgba(217, 107, 39, 0.45);
+  box-shadow: 0 0 0 2px var(--color-accent), 0 0 8px rgba(217, 107, 39, 0.45);
 }
-
 .leaderFrame-ornate .leaderPhotoImg {
-  border: 2px solid #b98a52;
-  box-shadow: 0 0 0 1px #5c3f22, 0 0 6px rgba(140, 98, 57, 0.45);
+  border: 3px solid #b98a52;
+  box-shadow: 0 0 0 1px #5c3f22, 0 0 8px rgba(140, 98, 57, 0.45);
 }
-
 .leaderFrame-forest .leaderPhotoImg {
-  border: 2px solid #6fbf82;
-  box-shadow: 0 0 0 1px #0d1f13, 0 0 6px rgba(74, 138, 92, 0.5);
+  border: 3px solid #6fbf82;
+  box-shadow: 0 0 0 1px #0d1f13, 0 0 8px rgba(74, 138, 92, 0.5);
+}
+.leaderFrame-political .leaderPhotoImg {
+  border: 3px solid #24406b;
+  box-shadow: 0 0 0 1px #d4af37, 0 0 8px rgba(35, 64, 110, 0.5);
 }
 
-.leaderFrame-political .leaderPhotoImg {
-  border: 2px solid #24406b;
-  box-shadow: 0 0 0 1px #d4af37, 0 0 6px rgba(35, 64, 110, 0.5);
-}
 
 .honorsSectionTitle {
   font-size: 11px;

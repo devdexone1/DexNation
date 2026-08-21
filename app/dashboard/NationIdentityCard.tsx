@@ -53,7 +53,7 @@ export default function NationIdentityCard({
       </div>
 
       <div className={styles.identityFlagWrap} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <FlagDisplay flagUrl={flagUrl} frame={flagFrame} size="large" />
+        <FlagDisplay flagUrl={flagUrl} frame={flagFrame} size="hero" />
       </div>
 
       <div className={styles.identityMetaRow}>

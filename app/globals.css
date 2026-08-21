@@ -105,7 +105,7 @@ option {
   color: var(--color-ink);
 }
 
-.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.card { background: linear-gradient(165deg, var(--panel-dark-elevated) 0%, var(--panel-dark-base) 100%); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 
 .badge {
   display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px;

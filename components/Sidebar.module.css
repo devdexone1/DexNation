@@ -14,7 +14,7 @@
 .brandMark { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: #fff; }
 .brandMark span { color: #d1a316; }
 
-.nationName { padding: 0 8px; margin-bottom: 24px; font-family: var(--font-mono); font-size: 11px; color: #8a8a8a; letter-spacing: 0.04em; }
+.nationName { padding: 0 8px; margin-bottom: 4px; font-family: var(--font-mono); font-size: 11px; color: #8a8a8a; letter-spacing: 0.04em; }
 
 .nav {
   display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto;

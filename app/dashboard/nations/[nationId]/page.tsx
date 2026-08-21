@@ -211,6 +211,7 @@ export default async function NationProfilePage({
           taxRate={0}
           politicalStability={0}
           history={historyRows ?? []}
+          foundingDate={nation.created_at}
         />
       </div>
 

@@ -16,16 +16,36 @@ const PERIODS = [
 
 // Picks ~6 evenly spaced day labels out of the sliced history window,
 // instead of one label per data point (matches the reference chart).
-function pickDayLabels(rows: NationStatsHistory[], count = 6): string[] {
+// Picks ~6 evenly spaced day labels out of the sliced history window,
+// instead of one label per data point (matches the reference chart).
+//
+// Deliberately does NOT use each row's `created_at` (the real wall-clock
+// timestamp of when the snapshot was inserted) — during testing, many
+// in-game "days" can get recorded on the same real calendar day, which
+// made every label show the same date (e.g. "Aug 19" repeated). Instead
+// this derives a calendar date from the nation's founding date + the
+// in-game day number (`recorded_tick`), which advances one real day per
+// in-game day and rolls over months/years correctly on its own (native
+// Date arithmetic already handles "end of month" / "into next month"
+// without any special-casing).
+function pickDayLabels(rows: NationStatsHistory[], foundingDate: string, count = 6): string[] {
   if (rows.length === 0) return []
+  const founding = new Date(foundingDate)
+
+  function labelForTick(tick: number) {
+    const d = new Date(founding)
+    d.setDate(founding.getDate() + Math.max(0, tick - 1))
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
   if (rows.length <= count) {
-    return rows.map((r) => new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
+    return rows.map((r) => labelForTick(r.recorded_tick))
   }
   const step = (rows.length - 1) / (count - 1)
   const labels: string[] = []
   for (let i = 0; i < count; i++) {
     const idx = Math.round(i * step)
-    labels.push(new Date(rows[idx].created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
+    labels.push(labelForTick(rows[idx].recorded_tick))
   }
   return labels
 }
@@ -38,6 +58,7 @@ export default function StrategicOverviewPanel({
   taxRate,
   politicalStability,
   history,
+  foundingDate,
 }: {
   cashBalance: number
   approvalRating: number
@@ -46,7 +67,9 @@ export default function StrategicOverviewPanel({
   taxRate: number
   politicalStability: number
   history: NationStatsHistory[]
+  foundingDate: string
 }) {
+
   // Default 15 days — matches the reference layout. Viewers (including
   // players visiting someone else's profile) can freely change this too;
   // it's a read-only display filter, not something that mutates data.
@@ -73,7 +96,7 @@ export default function StrategicOverviewPanel({
   })()
 
   const gdpPerCapita = population > 0 ? dailyGdp / population : 0
-  const dayLabels = pickDayLabels(sliced)
+  const dayLabels = pickDayLabels(sliced, foundingDate)
 
   return (
     <div className={styles.strategicPanel}>

@@ -217,6 +217,7 @@ export default async function OverviewPage() {
               taxRate={taxRate}
               politicalStability={politicalStability}
               history={historyRows}
+              foundingDate={nation.created_at}
             />
           ) : null}
 
